@@ -1,0 +1,342 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      admVariableDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// * * * * * * * * * * * * * * Default settings  * * * * * * * * * * * * * * //
+defaults
+{
+    standard
+    {
+        convergence     1e-2;
+        minErrorScale   1e-6;
+    }
+    implicit
+    {
+        convergence     1e-2;
+        minErrorScale   1e-6;
+    }
+}
+
+// * * * * * * * * * * * * *  Standard variables * * * * * * * * * * * * * * //
+S_su
+{
+    type        standard;
+    diffusion   gamma(S_su) [0 2 -1 0 0 0 0] 0.000;
+}
+S_aa
+{
+    type        standard;
+    diffusion   gamma(S_aa) [0 2 -1 0 0 0 0] 0.000;
+}
+S_fa
+{
+    type        standard;
+    diffusion   gamma(S_fa) [0 2 -1 0 0 0 0] 0.000;
+}
+S_va
+{
+    type        standard;
+    diffusion   gamma(S_va) [0 2 -1 0 0 0 0] 0.000;
+}
+S_bu
+{
+    type        standard;
+    diffusion   gamma(S_bu) [0 2 -1 0 0 0 0] 0.000;
+}
+S_pro
+{
+    type        standard;
+    diffusion   gamma(S_pro) [0 2 -1 0 0 0 0] 0.000;
+}
+S_ac
+{
+    type        standard;
+    diffusion   gamma(S_ac) [0 2 -1 0 0 0 0] 0.000;
+}
+/*S_h2
+{
+    type        standard;
+    diffusion   gamma(S_h2) [0 2 -1 0 0 0 0] 0.000;
+}*/
+S_ch4
+{
+    type            standard;
+    diffusion       gamma(S_ch4) [0 2 -1 0 0 0 0] 1.90571e-9;
+    changedByUdf    yes;
+}
+S_ic
+{
+    type            standard;
+    diffusion       gamma(S_ic) [0 2 -1 0 0 0 0] 2.45568e-9;
+    changedByUdf    yes;
+}
+S_in
+{
+    type        standard;
+    diffusion   gamma(S_in) [0 2 -1 0 0 0 0] 0.000;
+}
+S_i 
+{
+    type        standard;
+    diffusion   gamma(S_i) [0 2 -1 0 0 0 0] 0.000;
+}
+X_c 
+{
+    type        standard;
+    diffusion   gamma(X_c) [0 2 -1 0 0 0 0] 0.000;
+}
+X_ch
+{
+    type        standard;
+    diffusion   gamma(X_ch) [0 2 -1 0 0 0 0] 0.000;
+}
+X_pr
+{
+    type        standard;
+    diffusion   gamma(X_pr) [0 2 -1 0 0 0 0] 0.000;
+}
+X_li
+{
+    type        standard;
+    diffusion   gamma(X_li) [0 2 -1 0 0 0 0] 0.000;
+}
+X_su
+{
+    type        standard;
+    diffusion   gamma(X_su) [0 2 -1 0 0 0 0] 0.000;
+}
+X_aa
+{
+    type        standard;
+    diffusion   gamma(X_aa) [0 2 -1 0 0 0 0] 0.000;
+}
+X_fa
+{
+    type        standard;
+    diffusion   gamma(X_fa) [0 2 -1 0 0 0 0] 0.000;
+}
+X_c4
+{
+    type        standard;
+    diffusion   gamma(X_c4) [0 2 -1 0 0 0 0] 0.000;
+}
+X_pro
+{
+    type        standard;
+    diffusion   gamma(X_pro) [0 2 -1 0 0 0 0] 0.000;
+}
+X_ac
+{
+    type        standard;
+    diffusion   gamma(X_ac) [0 2 -1 0 0 0 0] 0.000;
+}
+X_h2
+{
+    type        standard;
+    diffusion   gamma(X_h2) [0 2 -1 0 0 0 0] 0.000;
+}
+X_i 
+{
+    type        standard;
+    diffusion   gamma(X_i) [0 2 -1 0 0 0 0] 0.000;
+}
+S_cat
+{
+    type        standard;
+    diffusion   gamma(S_cat) [0 2 -1 0 0 0 0] 0.000;
+}
+S_an
+{
+    type        standard;
+    diffusion   gamma(S_an) [0 2 -1 0 0 0 0] 0.000;
+}
+T
+{
+    type        standard;
+    diffusion   gamma(T) [0 2 -1 0 0 0 0] 0.000;
+}
+
+// * * * * * * * * * * * * *  Implicit variables * * * * * * * * * * * * * * //
+
+S_h2
+{
+    type                    implicit;
+    diffusion               gamma(S_h2) [0 2 -1 0 0 0 0] 5.7555e-9;
+    autoSolve               yes;
+//    autoSolveConvergence    1e-16;
+    autoSolveMaxIter        1000;    
+}
+S_h_p
+{
+    type                    implicit;
+    diffusion               gamma(S_h_p) [0 2 -1 0 0 0 0] 0.000;
+    autoSolve               no;
+//    autoSolveConvergence    1e-16;
+    autoSolveMaxIter        1000;
+    lowerLimit              1e-12;
+}
+S_va_m
+{
+    type        implicit;
+    diffusion   gamma(S_va_m) [0 2 -1 0 0 0 0] 0.000;
+}
+S_bu_m
+{
+    type        implicit;
+    diffusion   gamma(S_bu_m) [0 2 -1 0 0 0 0] 0.000;
+}
+S_pro_m
+{
+    type        implicit;
+    diffusion   gamma(S_pro_m) [0 2 -1 0 0 0 0] 0.000;
+}
+S_ac_m
+{
+    type        implicit;
+    diffusion   gamma(S_ac_m) [0 2 -1 0 0 0 0] 0.000;
+}
+S_hco3_m
+{
+    type        implicit;
+    diffusion   gamma(S_hco3_m) [0 2 -1 0 0 0 0] 0.000;
+}
+S_nh4_p
+{
+    type        implicit;
+    diffusion   gamma(S_nh4_p) [0 2 -1 0 0 0 0] 0.000;
+}
+
+// * * * * * * * * * * * * *  Derived variables  * * * * * * * * * * * * * * //
+
+S_co2
+{
+    type        derived;
+    diffusion   gamma(S_co2) [0 2 -1 0 0 0 0] 2.45568e-9;
+    function    "S_ic - S_hco3_m";
+    Jacobian
+    {
+        S_ic        "1";
+        S_hco3_m    "-1";
+    }
+    reverseFunctions
+    {
+        S_ic        "S_co2 + S_hco3_m";
+        //S_hco3_m    "S_ic - S_co2";
+    }
+}
+S_nh3
+{
+    type        derived;
+    function    "S_in - S_nh4_p";
+    Jacobian
+    {
+        S_in    "1";
+        S_nh4_p "-1";
+    }
+}
+S_oh_m
+{
+    type        derived;
+    function    "k_w / S_h_p";
+    Jacobian
+    {
+        S_h_p   "k_w / sqr(S_h_p)";
+    }
+}
+pH
+{
+    type        derived;
+    // Divided by 1000 because the pH equation takes moles / L, not moles / m3
+    function    [0 0 0 0 0 0 0] "-log10(S_h_p / 1000)";
+    Jacobian
+    {
+        S_h_p   "1 / 1000 / (S_h_p / 1000) / ln(10)";
+    }
+}
+
+/*
+defaults // optional subdictionary, all settings within are optional
+{
+    standard
+    {
+        convergence     scalar; // if missing, must be set individually
+        minErrorScale   scalar; // default SMALL
+    }
+    implicit
+    {
+        convergence     scalar; // if missing, must be set individually
+        minErrorScale   scalar; // default SMALL
+    }
+}
+
+variableName
+{
+    type:
+        type    standard;
+            diffusion       ignoredWord [dimensionSet] scalar;
+            convergence     scalar;     // optional - if missing, default must
+                                        // be defined in defaults
+            minErrorScale   scalar;     // optional - if missing, default must
+                                        // be defined in defaults
+            changedByUdf    yes / no;   // default no
+            // other dictionary entries used by convention:
+            upperLimit      scalar;     // default VGREAT
+            lowerLimit      scalar;     // default 0
+            // other dictionary entries can be entered here and looked up
+            // independently using varName.lookup(keyword, entry)
+        type    implicit;
+            diffusion               ignoredWord [dimensionSet] scalar;
+            convergence             scalar;     // optional - if missing,
+                                                // default must be defined
+            minErrorScale   scalar;             // optional - if missing,
+                                                // default must be defined
+            autoSolve               yes / no;   // default "no"
+            autoSolveConvergence    scalar;     // default convergence (above)
+            autoSolveMaxIter        integer;    // default 10000
+            // other dictionary entries used by convention:
+            upperLimit      scalar;     // default VGREAT
+            lowerLimit      scalar;     // default 0
+            // other dictionary entries can be entered here and looked up
+            // independently using varName.lookup(keyword, entry);
+        type    derived;
+            suppressOutput  yes / no;   // default no
+            function        "equation";
+            ddt             "equation"; // optional - default ddt=0
+            reverseFunctions // this subdictionary is optional
+            {
+                order       (varName varName varName ... );
+                    // order is optional, but if included, must have exactly
+                    // all the variables listed below
+                varName     "equation";
+                varName     "equation";
+                varName     "equation";
+                //... etc
+            }
+            Jacobian // this subdictionary is optional
+            {
+                varName     "equation";
+                varName     "equation";
+                varName     "equation";
+                //... etc
+            }
+            // other dictionary entries used by convention:
+            upperLimit      scalar;     // default VGREAT
+            lowerLimit      scalar;     // default 0
+            // other dictionary entries can be entered here and looked up
+            // independently using varName.lookup(keyword, entry);
+}
+*/
+
+// ************************************************************************* //

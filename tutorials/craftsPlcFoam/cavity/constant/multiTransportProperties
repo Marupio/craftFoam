@@ -1,0 +1,54 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM Extend Project: Open Source CFD        |
+|  \\    /   O peration     | Version:  1.6-ext                               |
+|   \\  /    A nd           | Web:      www.extend-project.de                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      multiTransportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dictionaryName  transportProperties;
+
+multiSolver
+{
+    base
+    {
+        transportModel Newtonian;
+
+        // Laminar viscosity
+        nu              nu [0 2 -1 0 0 0 0] 1.568e-05;
+
+        // Thermal expansion coefficient
+        beta            beta [0 0 0 -1 0 0 0] 3.315e-03;
+
+        // Reference temperature
+        TRef            TRef [0 0 0 1 0 0 0] 303.15;
+
+        // Laminar Prandtl number
+        Pr              Pr [0 0 0 0 0 0 0] 0.712;
+
+        // Turbulent Prandtl number
+        Prt             Prt [0 0 0 0 0 0 0] 0.85;
+    }
+    
+    mixing
+    {
+        sourceTermX     mixingX;
+        sourceTermY     mixingY;
+        sourceTermZ     mixingZ;
+    }
+    
+    M0F0 {sameAs base;}
+    M0F1 {sameAs base;}
+    M1F0 {multiLoad (base mixing);}
+    M1F1 {multiLoad (base mixing);}
+}
+
+// ************************************************************************* //

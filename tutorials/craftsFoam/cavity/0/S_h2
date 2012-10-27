@@ -1,0 +1,71 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      S_h2;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#includeIfPresent "../constant/universalBoundaryConditions"
+#includeIfPresent "../../../../constant/universalBoundaryConditions"
+
+dimensions      [1 -3 0 0 0 0 0];
+
+internalField   uniform $initS_h2;
+
+boundaryField
+{
+    inlet
+    {
+        type            zeroGradient;
+    }
+    outlet
+    {
+        type            zeroGradient;
+    }
+    heater
+    {
+        type            zeroGradient;
+    }
+    north
+    {
+        type                dissolvedGasTransfer;
+        inputDictionary     admSimpleGasDict;
+        outputDictionary    gasModel;
+        species             h2;
+    }
+    west
+    {
+        type            zeroGradient;
+    }
+    east
+    {
+        type            zeroGradient;
+    }
+    southwest
+    {
+        type            zeroGradient;
+    }
+    southeast
+    {
+        type            zeroGradient;
+    }
+    front
+    {
+        type            empty;
+    }
+    back
+    {
+        type            empty;
+    }
+}
+
+// ************************************************************************* //

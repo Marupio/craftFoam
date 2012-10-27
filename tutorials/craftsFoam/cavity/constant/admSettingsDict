@@ -1,0 +1,161 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      admSettingsDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+chainRuleSearchDepth        3;
+functionHooks               sh2IonsGas;
+flowModel                   steadyState;
+flowModel
+{
+    type    steadyState;
+    subStepping
+    {
+        useSubStepping      no;
+    }
+    adaptiveTimeSteppingTolerance
+    {
+        phi     1e-3;
+        p       1e-3;
+        R       (1e-3 1e-3 1e-3 1e-3 1e-3 1e-3);
+    }
+    minErrorScale
+    {
+        phi     1e-6;
+        //p       1e-6;
+        R       (1e-6 1e-6 1e-6 1e-6 1e-6 1e-6);
+    }
+}
+outerLoopMaxIterations      20;
+innerLoopMaxIterations      500;
+adaptiveTimeStepping
+{
+    useAdaptiveTimeStepping yes;
+    overClockFactor         1;
+    maxIncreaseFactor       1.1;
+    maxReductionFactor      0.01;
+    minReductionFactor      0.7;
+    convergenceFactor       1;
+    performanceFeedback
+    {
+        usePerformanceFeedback  yes;
+        measure                 cpuTime;
+        bias                    0;
+    }
+    flowSolutionConvergence
+    {
+        phi     1e-2;
+        p       1e-2;
+        R       (1e-2 1e-2 1e-2 1e-2 1e-2 1e-2);
+    }
+}
+outputFlags
+{
+    overallSummary                  yes; // default = yes
+    timeDetails                     no;  // default = no
+    
+    reactionAverages                yes; // default = yes
+    reactionSolverPerformance       no;  // default = no
+    reactionResidualSummary         yes; // default = yes
+    reactionResidualDetails         no;  // default = no
+    reactionErrorScales             no;  // default = no
+    reactionTimestepEstimate        yes; // default = yes
+
+    implicitLoopSummary             no;  // default = no
+    implicitLoopDetails             no;  // default = no
+    implicitAutoSolvePerformance    no;  // default = no
+
+    functionHooksSummary            yes; // default = no
+    ionSolverPerformance            no;  // default = no
+    gasSolverPerformance            yes; // default = yes
+
+    flowSolverPerformance           no;  // default = no
+    flowResiduals                   yes; // default = yes
+    flowErrorScales                 no;  // default = no
+    flowTimestepEstimate            yes; // default = yes
+    flowContinuityErrors            yes; // default = yes
+}
+
+/*
+chainRuleSearchDepth        integer;
+functionHooks               functionHooksName;
+flowModel
+{
+    type        flowModelName;
+    subStepping
+    {
+        useSubStepping      yes/no;
+        maxNSteps           label;  // must be even, default FOAM_LABEL_MAX
+        minNSteps           label;  // must be even, default 2
+        initialNSteps       label;  // must be even, default 2
+    }
+    adaptiveTimeSteppingTolerance
+    {
+        phi     scalar;     // required for piso
+        p       scalar;     // required for piso
+        R       symmTensor; // required for piso
+    }
+    minErrorScale
+    {
+        phi     scalar;     // default SMALL
+        p       scalar;     // default SMALL
+        R       symmTensor; // default SMALL symmtensor
+    }
+}
+outerLoopMaxIterations      integer;
+innerLoopMaxIterations      integer;
+adaptiveTimeStepping
+{
+    useAdaptiveTimeStepping yes/no;
+    convergenceFactor       scalar; // required if useAdaptiveTimeStepping
+    overClockFactor         scalar; // optional - default = 1.0
+    maxIncreaseFactor       scalar; // required if useAdaptiveTimeStepping
+    maxReductionFactor      scalar; // required if useAdaptiveTimeStepping
+    minReductionFactor      scalar; // required if useAdaptiveTimeStepping
+    performanceFeedback
+    {
+        usePerformanceFeedback  yes; //required if useAdaptiveTimeStepping
+        measure                 iterations/cpuTime; // required if
+        bias                    scalar;             // usePerformanceFeedBack
+    }
+}
+outputFlags
+{
+    overallSummary                  yes/no; // default = yes
+    timeDetails                     yes/no; // default = no
+    
+    reactionAverages                yes/no; // default = yes
+    reactionSolverPerformance       yes/no; // default = no
+    reactionResidualSummary         yes/no; // default = yes
+    reactionResidualDetails         yes/no; // default = no
+    reactionErrorScales             yes/no; // default = no
+    reactionTimestepEstimate        yes/no; // default = yes
+
+    implicitLoopSummary             yes/no; // default = no
+    implicitLoopDetails             yes/no; // default = no
+    implicitAutoSolvePerformance    yes/no; // default = no
+
+    functionHooksSummary            yes/no; // default = no
+    ionSolverPerformance            yes/no; // default = no
+    gasSolverPerformance            yes/no; // default = yes
+
+    flowSolverPerformance           yes/no; // default = no
+    flowResiduals                   yes/no; // default = yes
+    flowErrorScales                 yes/no; // default = no
+    flowTimestepEstimate            yes/no; // default = yes
+    flowContinuityErrors            yes/no; // default = yes
+}
+*/
+
+// ************************************************************************* //

@@ -1,0 +1,163 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      admVariableDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// * * * * * * * * * * * * * * Default settings  * * * * * * * * * * * * * * //
+defaults
+{
+    standard
+    {
+        convergence     1e-3;
+        minErrorScale   1e-6;
+    }
+    implicit
+    {
+        convergence     1e-3;
+        minErrorScale   1e-6;
+    }
+}
+
+// * * * * * * * * * * * * *  Standard variables * * * * * * * * * * * * * * //
+S_su
+{
+    type        standard;
+    diffusion   gamma(S_su) [0 2 -1 0 0 0 0] 0.000;
+}
+S_aa
+{
+    type        standard;
+    diffusion   gamma(S_aa) [0 2 -1 0 0 0 0] 0.000;
+}
+S_fa
+{
+    type        standard;
+    diffusion   gamma(S_fa) [0 2 -1 0 0 0 0] 0.000;
+}
+S_ic
+{
+    type            standard;
+    diffusion       gamma(S_ic) [0 2 -1 0 0 0 0] 2.45568e-9;
+    changedByUdf    yes;
+}
+S_i 
+{
+    type        standard;
+    diffusion   gamma(S_i) [0 2 -1 0 0 0 0] 0.000;
+}
+X_c 
+{
+    type        standard;
+    diffusion   gamma(X_c) [0 2 -1 0 0 0 0] 0.000;
+}
+X_ch
+{
+    type        standard;
+    diffusion   gamma(X_ch) [0 2 -1 0 0 0 0] 0.000;
+}
+X_pr
+{
+    type        standard;
+    diffusion   gamma(X_pr) [0 2 -1 0 0 0 0] 0.000;
+}
+X_li
+{
+    type        standard;
+    diffusion   gamma(X_li) [0 2 -1 0 0 0 0] 0.000;
+}
+X_i 
+{
+    type        standard;
+    diffusion   gamma(X_i) [0 2 -1 0 0 0 0] 0.000;
+}
+
+// * * * * * * * * * * * * *  Implicit variables * * * * * * * * * * * * * * //
+
+// * * * * * * * * * * * * *  Derived variables  * * * * * * * * * * * * * * //
+
+/*
+
+defaults // optional subdictionary, all settings within are optional
+{
+    standard
+    {
+        convergence     scalar; // if missing, must be set individually
+        minErrorScale   scalar; // default SMALL
+    }
+    implicit
+    {
+        convergence     scalar; // if missing, must be set individually
+        minErrorScale   scalar; // default SMALL
+    }
+}
+
+variableName
+{
+    type:
+        type    standard;
+            diffusion       ignoredWord [dimensionSet] scalar;
+            convergence     scalar;     // optional - if missing, default must
+                                        // be defined in defaults
+            minErrorScale   scalar;     // optional - if missing, default must
+                                        // be defined in defaults
+            changedByUdf    yes / no;   // default no
+            // other dictionary entries used by convention:
+            upperLimit      scalar;     // default VGREAT
+            lowerLimit      scalar;     // default 0
+            // other dictionary entries can be entered here and looked up
+            // independently using varName.lookup(keyword, entry)
+        type    implicit;
+            diffusion               ignoredWord [dimensionSet] scalar;
+            convergence             scalar;     // optional - if missing,
+                                                // default must be defined
+            minErrorScale   scalar;             // optional - if missing,
+                                                // default must be defined
+            autoSolve               yes / no;   // default "no"
+            autoSolveConvergence    scalar;     // default convergence (above)
+            autoSolveMaxIter        integer;    // default 10000
+            // other dictionary entries used by convention:
+            upperLimit      scalar;     // default VGREAT
+            lowerLimit      scalar;     // default 0
+            // other dictionary entries can be entered here and looked up
+            // independently using varName.lookup(keyword, entry);
+        type    derived;
+            suppressOutput  yes / no;   // default no
+            function        "equation";
+            ddt             "equation"; // optional - default ddt=0
+            reverseFunctions // this subdictionary is optional
+            {
+                order       (varName varName varName ... );
+                    // order is optional, but if included, must have exactly
+                    // all the variables listed below
+                varName     "equation";
+                varName     "equation";
+                varName     "equation";
+                //... etc
+            }
+            Jacobian // this subdictionary is optional
+            {
+                varName     "equation";
+                varName     "equation";
+                varName     "equation";
+                //... etc
+            }
+            // other dictionary entries used by convention:
+            upperLimit      scalar;     // default VGREAT
+            lowerLimit      scalar;     // default 0
+            // other dictionary entries can be entered here and looked up
+            // independently using varName.lookup(keyword, entry);
+}
+*/
+
+// ************************************************************************* //

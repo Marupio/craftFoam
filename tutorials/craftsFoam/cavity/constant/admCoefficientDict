@@ -1,0 +1,263 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      admCoefficientDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// * * * * * * * * * * * Stoichiometric coefficients * * * * * * * * * * * * //
+C_aa            [-1 0 0 0 1 0 0]    30;
+C_ac            [-1 0 0 0 1 0 0]    31.3;
+C_bac           [-1 0 0 0 1 0 0]    31.3;
+C_bu            [-1 0 0 0 1 0 0]    25;
+C_ch            [-1 0 0 0 1 0 0]    31.3;
+C_ch4           [-1 0 0 0 1 0 0]    15.6;
+C_fa            [-1 0 0 0 1 0 0]    21.7;
+C_li            [-1 0 0 0 1 0 0]    22;
+C_pr            [-1 0 0 0 1 0 0]    30;
+C_pro           [-1 0 0 0 1 0 0]    26.8;
+C_si            [-1 0 0 0 1 0 0]    30;
+C_su            [-1 0 0 0 1 0 0]    31.3;
+C_va            [-1 0 0 0 1 0 0]    24;
+C_xc            [-1 0 0 0 1 0 0]    30;
+C_xi            [-1 0 0 0 1 0 0]    30;
+N_aa            [-1 0 0 0 1 0 0]    7;
+N_bac           [-1 0 0 0 1 0 0]    "40/7";
+
+// Molar masses
+//mm_ch4          [1 0 0 0 -1 0 0]    0.01604;
+//mm_h2           [1 0 0 0 -1 0 0]    0.00202;
+//mm_hco3_m       [1 0 0 0 -1 0 0]    0.06102;
+
+// kgCOD per mole of gas
+kg_m_ac         [1 0 0 0 -1 0 0]    0.064;
+kg_m_bu         [1 0 0 0 -1 0 0]    0.160;
+kg_m_ch4        [1 0 0 0 -1 0 0]    0.064;
+kg_m_h2         [1 0 0 0 -1 0 0]    0.016;
+kg_m_pro        [1 0 0 0 -1 0 0]    0.112;
+kg_m_va         [1 0 0 0 -1 0 0]    0.208;
+
+// CO2 is already in moles, but we need a coefficient defined
+kg_m_co2        [0 0 0 0 0 0 0]     1;
+
+// * * * * * * * * * * * * Kinetic rate parameters * * * * * * * * * * * * * //
+k_a_ac          [0 -3 0 0 1 0 0]    1.74e-2;
+k_a_bu          [0 -3 0 0 1 0 0]    1.51e-2;
+k_a_co2 // 4.9370733975343631007e-04
+{
+    type        temperatureDependentExponentialRatio;
+    // A * exp(B * (1 / T_base - 1 / T))
+    A           "pow(10, -6.35) * 1000";
+    B           "7646 / 8.3145";
+    T_base      298.15;
+    T_var       T;
+    dimensions  [0 -3 0 0 1 0 0];
+}
+k_a_in // 1.1102866527080675915e-06
+{
+    type        temperatureDependentExponentialRatio;
+    // A * exp(B * (1 / T_base - 1 / T))
+    A           "pow(10, -9.25) * 1000";
+    B           "51965 / 8.3145";
+    T_base      298.15;
+    T_var       T;
+    dimensions  [0 -3 0 0 1 0 0];
+}
+k_a_pro         [0 -3 0 0 1 0 0]    1.32e-2;
+k_a_va          [0 -3 0 0 1 0 0]    1.38e-2;
+k_dec_X_aa      [0 0 -1 0 0 0 0]    2.31481481481481e-7;
+k_dec_X_ac      [0 0 -1 0 0 0 0]    2.31481481481481e-7;
+k_dec_X_c4      [0 0 -1 0 0 0 0]    2.31481481481481e-7;
+k_dec_X_fa      [0 0 -1 0 0 0 0]    2.31481481481481e-7;
+k_dec_X_h2      [0 0 -1 0 0 0 0]    2.31481481481481e-7;
+k_dec_X_pro     [0 0 -1 0 0 0 0]    2.31481481481481e-7;
+k_dec_X_su      [0 0 -1 0 0 0 0]    2.31481481481481e-7;
+k_dis           [0 0 -1 0 0 0 0]    5.78703703703704e-6;
+k_hyd_ch        [0 0 -1 0 0 0 0]    1.15740740740741e-4;
+k_hyd_li        [0 0 -1 0 0 0 0]    1.15740740740741e-4;
+k_hyd_pr        [0 0 -1 0 0 0 0]    1.15740740740741e-4;
+k_l_a           [0 0 -1 0 0 0 0]    2.31481481481481e-3;
+k_m_aa          [0 0 -1 0 0 0 0]    5.78703703703704e-4;
+k_m_ac          [0 0 -1 0 0 0 0]    9.25925925925926e-5;
+k_m_c4          [0 0 -1 0 0 0 0]    2.31481481481481e-4;
+k_m_fa          [0 0 -1 0 0 0 0]    6.94444444444444e-5;
+k_m_h2          [0 0 -1 0 0 0 0]    4.05092592592593e-4;
+k_m_pr          [0 0 -1 0 0 0 0]    1.50462962962963e-4;
+k_m_su          [0 0 -1 0 0 0 0]    3.47222222222222e-4;
+k_p             [-1 4 1 0 0 0 0]    5.78703703703704e-6;
+k_s_aa          [1 -3 0 0 0 0 0]    0.3;
+k_s_ac          [1 -3 0 0 0 0 0]    0.15;
+k_s_c4          [1 -3 0 0 0 0 0]    0.2;
+k_s_fa          [1 -3 0 0 0 0 0]    0.4;
+k_s_h2          [1 -3 0 0 0 0 0]    7.0e-6;
+k_s_pro         [1 -3 0 0 0 0 0]    0.1;
+k_s_su          [1 -3 0 0 0 0 0]    0.5;
+k_w // 2.0787710559543600784e-8
+{
+    type    temperatureDependentExponentialRatio;
+    //      A * exp(B * (1 / T_base - 1 / T))
+    A           1.0e-8;
+    B           "55900 / 8.3145";
+    T_base      298.15;
+    T_var       T;
+    dimensions  [0 -6 0 0 2 0 0];
+}
+
+// * * * * * * * * * * * * * * *  Inhibition * * * * * * * * * * * * * * * * //
+k_i_in          [0 -3 0 0 1 0 0]    0.1;
+k_i_nh3         [0 -3 0 0 1 0 0]    1.8;
+k_i_h2_c4       [1 -3 0 0 0 0 0]    1.0e-5;
+k_i_h2_fa       [1 -3 0 0 0 0 0]    5.0e-6;
+k_i_h2_pro      [1 -3 0 0 0 0 0]    3.5e-6;
+ph_ll_aa        [0 0 0 0 0 0 0]     4;
+ph_ll_ac        [0 0 0 0 0 0 0]     6;
+ph_ll_h2        [0 0 0 0 0 0 0]     5;
+ph_ul_aa        [0 0 0 0 0 0 0]     5.5;
+ph_ul_ac        [0 0 0 0 0 0 0]     7;
+ph_ul_h2        [0 0 0 0 0 0 0]     6;
+
+// * * * * * * * * * * * * *  Yield coefficients * * * * * * * * * * * * * * //
+f_ac_aa         [0 0 0 0 0 0 0]     0.4;
+f_ac_su         [0 0 0 0 0 0 0]     0.41;
+f_bu_aa         [0 0 0 0 0 0 0]     0.26;
+f_bu_su         [0 0 0 0 0 0 0]     0.13;
+f_ch_xc         [0 0 0 0 0 0 0]     0.2;
+f_fa_li         [0 0 0 0 0 0 0]     0.95;
+f_h2_aa         [0 0 0 0 0 0 0]     0.06;
+f_h2_su         [0 0 0 0 0 0 0]     0.19;
+f_li_xc         [0 0 0 0 0 0 0]     0.3;
+f_pr_xc         [0 0 0 0 0 0 0]     0.2;
+f_pro_aa        [0 0 0 0 0 0 0]     0.05;
+f_pro_su        [0 0 0 0 0 0 0]     0.27;
+f_si_xc         [0 0 0 0 0 0 0]     0.1;
+f_va_aa         [0 0 0 0 0 0 0]     0.23;
+f_xi_xc         [0 0 0 0 0 0 0]     0.2;
+Y_aa            [0 0 0 0 0 0 0]     0.08;
+Y_ac            [0 0 0 0 0 0 0]     0.05;
+Y_c4            [0 0 0 0 0 0 0]     0.06;
+Y_fa            [0 0 0 0 0 0 0]     0.06;
+Y_h2            [0 0 0 0 0 0 0]     0.06;
+Y_pro           [0 0 0 0 0 0 0]     0.04;
+Y_su            [0 0 0 0 0 0 0]     0.1;
+
+// * * * * * * * * * * * * * * * *  Gas laws * * * * * * * * * * * * * * * * //
+// nrEpsilon       [0 0 0 0 0 0 0]     1e-6;
+// nrMaxIter       [0 0 0 0 0 0 0]     1000;
+k_h_ch4 // 1.0648010671286595093e-05
+{
+    type        temperatureDependentExponentialRatio;
+    // A * exp(B * (1 / T_base - 1 / T))
+    A           "1.3e-3 / 101.325";
+    B           "-1.424e7 / 8314.5";
+    T_base      298.15;
+    T_var       T;
+    dimensions  [-1 -2 2 0 1 0 0];
+}
+k_h_co2 // 0.00026026225613550823916
+{
+    type        temperatureDependentExponentialRatio;
+    // A * exp(B * (1 / T_base - 1 / T))
+    A           "0.034 / 101.325";
+    B           "-1.941e7 / 8314.5";
+    T_base      298.15;
+    T_var       T;
+    dimensions  [-1 -2 2 0 1 0 0];
+}
+k_h_h2 // 7.2880871389459285728e-06
+{
+    type        temperatureDependentExponentialRatio;
+    // A * exp(B * (1 / T_base - 1 / T))
+    A           "7.8e-4 / 101.325";
+    B           "-4.18e6 / 8314.5";
+    T_base      298.15;
+    T_var       T;
+    dimensions  [-1 -2 2 0 1 0 0];
+}
+k_b_ch4         [0 0 -1 0 0 0 0]    5e3;
+k_b_co2         [0 0 -1 0 0 0 0]    5e3;
+k_b_h2          [0 0 -1 0 0 0 0]    5e3;
+p_atm           [1 -1 -2 0 0 0 0]   101325;
+p_gasOverPressure   [1 -1 -2 0 0 0 0]   10;
+p_gas_h2o // 5566.7745074990079956
+{
+    type    temperatureDependentExponentialRatio;
+    //      [A * exp(B * (1 / T_base - 1 / T))]
+    A           3130;
+    B           5290;
+    T_base      298.15;
+    T_var       T;
+    dimensions  [1 -1 -2 0 0 0 0];
+}
+R               [1 2 -2 -1 -1 0 0] 8.3145;
+V_gas           [0 3 0 0 0 0 0] 10;
+k_gasCutOff     [0 0 0 0 0 0 0] 1.0;
+
+/*
+    The scalarOrEquation format, e.g.:
+        keyword     scalarOrEquation;
+    can have any of these formats:
+        keyword     scalar;
+        keyword     [0 0 0 0 0 0 0] scalar;
+        keyword     ignoredWord [0 0 0 0 0 0 0] scalar;
+        keyword     "equation";
+        keyword     [0 0 0 0 0 0 0] "equation";
+        keyword     ignoredWord [0 0 0 0 0 0 0] "equation";
+
+    The dimensionedScalarOrEquation format, e.g.:
+        keyword     dimensionedScalarOrEquation;
+    can have any of these formats:
+        keyword     scalar;
+        keyword     [dimensionSet] scalar;
+        keyword     ignoredWord [dimensionSet] scalar;
+        keyword     "equation";
+        keyword     [dimensionSet] "equation";
+        keyword     ignoredWord [dimensionSet] "equation";
+
+// Short format for 'constant' coefficients:
+coefficientName     dimensionedScalarOrEquation;
+
+// Long format for all types
+coefficientName
+{
+    type:
+        type    constant;
+            value   dimensionedScalarOrEquation;
+        type    temperatureDependentExponentialRatio;
+            // A * exp(B * (1 / T_base - 1 / T))
+            A       scalarOrEquation;
+            B       scalarOrEquation;
+            T_base  scalarOrEquation;
+            T_var   varName;
+            dimensions  [dimensionSet]; // optional, defaults to dimless
+        type    custom;
+            uniform     yes / no; //optional, defaults to no
+            constant    yes / no; //optional, defaults to no
+            function    "equation";
+            ddt         "equation"; //optional, defaults to zero
+            Jacobian //optional, defaults to zero
+            {
+                variable    "equation";
+                variable    "equation";
+                // etc...
+                // Note: customCoefficient does not use the chain rule to
+                //  search through other variables, like derivedVariable does.
+                //  Therefore all desired non-zero derivatives must be defined
+                //  in full here.
+            }
+        type    zero;
+            dimensions  [dimensionSet] //optional, defaults to dimless
+        type    one;
+            dimensions  [dimensionSet] //optional, defaults to dimless
+}
+*/
+
+// ************************************************************************* //

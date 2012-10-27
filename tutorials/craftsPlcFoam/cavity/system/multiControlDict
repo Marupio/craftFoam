@@ -1,0 +1,68 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      multiControlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+multiSolverControl
+{
+    initialStartFrom    startTimeInStartDomain;
+    startTime           0;
+    //initialStartFrom    latestTime;
+    startDomain         M0F1;
+    finalStopAt         endTime;
+    endTime             8640000;
+    timeFormat          scientific;
+    timePrecision       12;
+}
+
+solverDomains
+{
+    M0F0
+    {
+        application             craftsPlcFoam;
+        stopAt                  solverSignal;
+        deltaT                  0.0005;
+        writeControl            timeStep;
+        writeInterval           1;
+        //minimumOutputSpacing    300;
+        purgeWrite              0;
+        writeFormat             ascii;
+        writePrecision          16;
+        writeCompression        uncompressed;
+        runTimeModifiable       yes;
+
+        // Entries specific to ADM solver and its subsidiaries
+        outputEquations             yes;
+        outputEquationDataSources   no;
+        //minDeltaT                   scalar;
+        //maxDeltaT                   scalar;
+        //resumeDeltaT    no;
+        libs
+        5
+        (
+            "libcustomFunctionHooks.so"
+            "libcustomFlowSolvers.so"
+            "libcustomIncompressibleRASModels.so"
+            "libcustomIncompressibleTurbulenceModel.so"
+            "libOpenFOAM.so"
+        );
+        adjustTimeStep          yes;
+        maxCo                   0.1;
+    }
+    M0F1 {sameAs M0F0;}
+    M1F0 {sameAs M0F0;}
+    M1F1 {sameAs M0F0;}
+}
+
+// ************************************************************************* //

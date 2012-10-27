@@ -1,0 +1,299 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      admCoefficientDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include "universalSettings"
+
+algorithmGroups
+{
+    admmda
+    (
+        M0F0 M0F1 M1F0 M1F1
+    );
+}
+
+triggers
+{
+// *** Sensors ***
+
+// *** Timers ***
+    mixerStartTimer
+    {
+        type                timer;
+        duration            $mixEvery;
+        roundOff            1e-6;
+        valueWhenActive     false;
+        startAt             runStart;
+        nRepeat             -1;
+    }
+    mixerRunTimer
+    {
+        initialCondition    $mixerStarts;
+        type                timer;
+        duration            $mixFor;
+        roundOff            1e-6;
+        valueWhenActive     true;
+        startAt             trigger;
+        trigger             mixerStartTimer;
+        nRepeat             -1;
+    }
+    flowStartTimer
+    {
+        type                timer;
+        duration            $flowEvery;
+        roundOff            1e-6;
+        valueWhenActive     false;
+        startAt             runStart;
+        nRepeat             -1;
+    }
+    flowRunTimer
+    {
+        initialCondition    $flowStarts;
+        type                timer;
+        duration            $flowFor;
+        roundOff            1e-6;
+        valueWhenActive     true;
+        startAt             trigger;
+        trigger             flowStartTimer;
+        nRepeat             -1;
+    }
+
+// *** Domains ***
+    mixerDomain
+    {
+        type            solverDomainGroup;
+        solverDomains   (M1F0 M1F1);
+    }
+    nonMixerDomain
+    {
+        type            solverDomainGroup;
+        solverDomains   (M0F0 M0F1);
+    }
+    flowDomain
+    {
+        type            solverDomainGroup;
+        solverDomains   (M0F1 M1F1);
+    }
+
+// *** Conditional switches ***
+    mixerOn
+    {
+        type    conditionalSwitch;
+        trueWhen
+        {
+            triggered       (mixerDomain);
+            notTriggered    ();
+        }
+        falseWhen
+        {
+            triggered       (nonMixerDomain);
+            notTriggered    ();
+        }
+    }
+    flowOn
+    {
+        type    conditionalSwitch;
+        trueWhen
+        {
+            triggered       (flowDomain);
+            notTriggered    ();
+        }
+        falseWhen
+        {
+            triggered       ();
+            notTriggered    (flowDomain);
+        }
+    }
+}
+
+logic
+{
+    order
+    (
+        turnMixerOnF0 turnMixerOnF1
+        turnMixerOffF0 turnMixerOffF1
+        turnFlowOnM0 turnFlowOnM1
+        turnFlowOffM0 turnFlowOffM1
+    );
+    
+// *** Turn mixer on ***
+    turnMixerOnF0
+    {
+        solverDomain    M1F0;
+        triggered       (mixerRunTimer);
+        notTriggered    (mixerOn flowRunTimer);
+    }
+    turnMixerOnF1
+    {
+        solverDomain    M1F1;
+        triggered       (mixerRunTimer flowRunTimer);
+        notTriggered    (mixerOn);
+    }
+
+// *** Turn mixer off ***
+    turnMixerOffF0
+    {
+        solverDomain    M0F0;
+        triggered       (mixerOn);
+        notTriggered    (mixerRunTimer flowRunTimer);
+    }
+    turnMixerOffF1
+    {
+        solverDomain    M0F1;
+        triggered       (mixerOn flowRunTimer);
+        notTriggered    (mixerRunTimer);
+    }
+
+// *** Turn flow on ***
+    turnFlowOnM0
+    {
+        solverDomain    M0F1;
+        triggered       (flowRunTimer);
+        notTriggered    (flowOn mixerRunTimer);
+    }
+    turnFlowOnM1
+    {
+        solverDomain    M1F1;
+        triggered       (flowRunTimer mixerRunTimer);
+        notTriggered    (flowOn);
+    }
+
+// *** Turn flow off ***
+    turnFlowOffM0
+    {
+        solverDomain    M0F0;
+        triggered       (flowOn);
+        notTriggered    (flowRunTimer mixerRunTimer);
+    }
+    turnFlowOffM1
+    {
+        solverDomain    M1F0;
+        triggered       (flowOn mixerRunTimer);
+        notTriggered    (flowRunTimer);
+    }
+}
+
+/* general dictionary format
+algorithmGroups
+{
+    algorithmName (solverDomainName solverDomainName ...);
+    ...
+}
+
+// objectRegistry keyword
+//  This is a list of filename strings.  These aren't actually filenames, but
+//  rather they are objectRegistry paths.  The syntax is:
+//      . = runTime
+//      subRegistry or ./subRegistry = one objectRegistry under runTime
+//      subRegistry/subRegistry/... etc., or
+//      ./subRegistry/subRegistry/... etc. = the general case
+//  For example, ./region0 would access the default mesh, where most solvers
+//  keep their model variables.
+//  Also, this is a list because two solverDomains may have different object-
+//  Registry structures.
+
+triggers
+{
+    triggerName
+    {
+        initialCondition    on/off; // default off
+        type    solverDomainGroup;
+            solverDomains   (solverDomainName solverDomainName ...);
+        type    solverSignal;
+        type    conditionalSwitch;
+            trueWhen
+            {
+                triggered       (triggerName triggerName ...);
+                notTriggered    (triggerName triggerName ...);
+                // if conditions are empty, always true unless "falseWhen" met
+            }
+            falseWhen
+            {
+                triggered       (solverDomainName solverDomainName ...);
+                notTriggered    (solverDomainName solverDomainName ...);
+                // if conditions are empty, always false unless "trueWhen" met
+            }
+        type    equationLimit;
+            equationName    equationName;
+            equationReaderName  equationReaderName; // default eqns
+            equationReaderObjectRegistry    (pathFromRunTime);
+            evaluation      point;
+                geoIndex        label; // default 0
+                cellIndex       label;
+            evaluation      patchFieldAverage;
+                patchIndex      label;
+                meshName        word; // default region0
+                meshObjectRegistry  (pathFromRunTime);
+            evaluation      patchFieldMaximum;
+                patchIndex      label;
+                meshName        word; // default region0
+                meshObjectRegistry  (pathFromRunTime);
+            evaluation      patchFieldMinimum;
+                patchIndex      label;
+                meshName        word; // default region0
+                meshObjectRegistry  (pathFromRunTime);
+            evaluation      internalFieldAverage;
+                meshName        word; // default region0
+                meshObjectRegistry  (pathFromRunTime);
+            evaluation      internalFieldMaximum;
+                meshName        word; // default region0
+                meshObjectRegistry  (pathFromRunTime);
+            evaluation      internalFieldMinimum;
+                meshName        word; // default region0
+                meshObjectRegistry  (pathFromRunTime);
+            greaterThan     scalar; // optional if lessThan is defined
+            lessThan        scalar; // optional if greaterThan is defined
+        type    volScalarFieldLimit;
+            variableName    variableName;
+            objectRegistry  (pathFromRunTime pathFromRunTime ...);
+            evaluation      point;
+                geoIndex        label; // default 0
+                cellIndex       label;
+            evaluation      patchFieldAverage;
+                patchIndex      label;
+            evaluation      patchFieldMaximum;
+                patchIndex      label;
+            evaluation      patchFieldMinimum;
+                patchIndex      label;
+            evaluation      internalFieldAverage;
+            evaluation      internalFieldMaximum;
+            evaluation      internalFieldMinimum;
+            greaterThan     scalar; // optional if lessThan is defined
+            lessThan        scalar; // optional if greaterThan is defined
+        type    timer;
+            duration            scalar;
+            valueWhenActive     true/false; // default true
+            roundOff            scalar;
+            startAt             runStart;
+            startAt             trigger;
+                trigger             triggerName;
+            nRepeat             scalar; // N = number of repititions,
+                                        // 0 = run once, -1 = always repeat
+                                        // default -1
+    }
+}
+
+logic
+{
+    order   (testName testName testName ...); // optional
+    testName
+    {
+        solverDomain    solverDomainName;
+        triggered       (triggerName triggerName ...); // optional
+        notTriggered    (triggerName triggerName ...); // optional
+    }
+    ...
+}
+*/

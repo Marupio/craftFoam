@@ -1,0 +1,174 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      admCoefficientDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// * * * * * * * * * * * Stoichiometric coefficients * * * * * * * * * * * * //
+C_aa            [-1 0 0 0 1 0 0]    30;
+C_ch            [-1 0 0 0 1 0 0]    31.3;
+C_fa            [-1 0 0 0 1 0 0]    21.7;
+C_li            [-1 0 0 0 1 0 0]    22;
+C_pr            [-1 0 0 0 1 0 0]    30;
+C_si            [-1 0 0 0 1 0 0]    30;
+C_su            [-1 0 0 0 1 0 0]    31.3;
+C_xc            [-1 0 0 0 1 0 0]    30;
+C_xi            [-1 0 0 0 1 0 0]    30;
+
+// * * * * * * * * * * * * *  Yield coefficients * * * * * * * * * * * * * * //
+f_ch_xc         [0 0 0 0 0 0 0]     0.2;
+f_fa_li         [0 0 0 0 0 0 0]     0.95;
+f_li_xc         [0 0 0 0 0 0 0]     0.3;
+f_pr_xc         [0 0 0 0 0 0 0]     0.2;
+f_si_xc         [0 0 0 0 0 0 0]     0.1;
+f_xi_xc         [0 0 0 0 0 0 0]     0.2;
+
+// * * * * * * * * * * * * Kinetic rate parameters * * * * * * * * * * * * * //
+k_dis           [0 0 -1 0 0 0 0]    5.78703703703704e-6;
+k_hyd_ch        [0 0 -1 0 0 0 0]    1.15740740740741e-4;
+k_hyd_li        [0 0 -1 0 0 0 0]    1.15740740740741e-4;
+k_hyd_pr        [0 0 -1 0 0 0 0]    1.15740740740741e-4;
+
+
+// * * * * * * * * * * * * Mixing source term  * * * * * * * * * * * * * * * //
+vesselCentreX   [0 1 0 0 0 0 0] 5;
+vesselCentreY   [0 1 0 0 0 0 0] 5;
+vesselCentreZ   [0 1 0 0 0 0 0] 0.5;
+impellerRadius  [0 1 0 0 0 0 0] 2.5;
+stirIntensity   1e-2;
+C_x_stable
+{
+    type        custom;
+    constant    yes;
+    function    [0 1 0 0 0 0 0]
+        "pos(mag(C.x - vesselCentreX) - SMALL_) * (C.x - vesselCentreX) \
+            + neg(mag(C.x - vesselCentreX) - SMALL_) * SMALL_";
+}
+C_y_stable
+{
+    type        custom;
+    constant    yes;
+    function    [0 1 0 0 0 0 0]
+        "pos(mag(C.y - vesselCentreY) - SMALL_) * (C.y - vesselCentreY) \
+            + neg(mag(C.y - vesselCentreY) - SMALL_) * SMALL_";
+}
+C_r
+{
+    type        custom;
+    constant    yes;
+    function    "sqrt(sqr(C.x - vesselCentreX) + \
+                      sqr(C.y - vesselCentreY))";
+}
+C_r_stable
+{
+    type        custom;
+    constant    yes;
+    function    [0 1 0 0 0 0 0]
+        "pos(C_r - SMALL_) * C_r + neg(C_r - SMALL_) * SMALL_";
+}
+C_theta
+{
+    type        custom;
+    constant    yes;
+    function    "atan2(C_y_stable, C_x_stable)";
+}
+S_r
+{
+    type        zero;
+    dimensions  [0 1 -2 0 0 0 0];
+}
+S_theta
+{
+    type        custom;
+    constant    yes;
+    function    [0 1 -2 0 0 0 0] 
+        "max(stirIntensity * (1 - sqr(2 * C_r / impellerRadius - 1)), 0)";
+}
+mixingX
+{
+    type        custom;
+    constant    yes;
+    function    "-S_theta * sin(C_theta)";
+}
+mixingY
+{
+    type        custom;
+    constant    yes;
+    function    "S_theta * cos(C_theta)";
+}
+mixingZ
+{
+    type        zero;
+    dimensions  [0 1 -2 0 0 0 0];
+}
+
+/*
+    The scalarOrEquation format, e.g.:
+        keyword     scalarOrEquation;
+    can have any of these formats:
+        keyword     scalar;
+        keyword     [0 0 0 0 0 0 0] scalar;
+        keyword     ignoredWord [0 0 0 0 0 0 0] scalar;
+        keyword     "equation";
+        keyword     [0 0 0 0 0 0 0] "equation";
+        keyword     ignoredWord [0 0 0 0 0 0 0] "equation";
+
+    The dimensionedScalarOrEquation format, e.g.:
+        keyword     dimensionedScalarOrEquation;
+    can have any of these formats:
+        keyword     scalar;
+        keyword     [dimensionSet] scalar;
+        keyword     ignoredWord [dimensionSet] scalar;
+        keyword     "equation";
+        keyword     [dimensionSet] "equation";
+        keyword     ignoredWord [dimensionSet] "equation";
+
+// Short format for 'constant' coefficients:
+coefficientName     dimensionedScalarOrEquation;
+
+// Long format for all types
+coefficientName
+{
+    type:
+        type    constant;
+            value   dimensionedScalarOrEquation;
+        type    temperatureDependentExponentialRatio;
+            // A * exp(B * (1 / T_base - 1 / T))
+            A       scalarOrEquation;
+            B       scalarOrEquation;
+            T_base  scalarOrEquation;
+            T_var   varName;
+            dimensions  [dimensionSet]; // optional, defaults to dimless
+        type    custom;
+            uniform     yes / no; //optional, defaults to no
+            constant    yes / no; //optional, defaults to no
+            function    "equation";
+            ddt         "equation"; //optional, defaults to zero
+            Jacobian //optional, defaults to zero
+            {
+                variable    "equation";
+                variable    "equation";
+                // etc...
+                // Note: customCoefficient does not use the chain rule to
+                //  search through other variables, like derivedVariable does.
+                //  Therefore all desired non-zero derivatives must be defined
+                //  in full here.
+            }
+        type    zero;
+            dimensions  [dimensionSet] //optional, defaults to dimless
+        type    one;
+            dimensions  [dimensionSet] //optional, defaults to dimless
+}
+*/
+
+// ************************************************************************* //

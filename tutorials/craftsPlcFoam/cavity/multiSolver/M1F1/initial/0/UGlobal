@@ -1,0 +1,76 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#includeIfPresent "../constant/universalBoundaryConditions"
+#includeIfPresent "../../../../constant/universalBoundaryConditions"
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+    inlet
+    {
+//        type            fixedValue;
+//        value           uniform ($inletU 0 0);
+        type            zeroGradient;
+    }
+    outlet
+    {
+        type            zeroGradient;
+    }
+    heater
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+    north
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+    west
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+    east
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+    southwest
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+    southeast
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+    front
+    {
+        type            empty;
+    }
+    back
+    {
+        type            empty;
+    }
+}
+
+// ************************************************************************* //

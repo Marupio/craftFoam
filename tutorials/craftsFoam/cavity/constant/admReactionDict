@@ -1,0 +1,542 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      admReactionDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// This is the full ADM1 set of reactions.
+
+disintegration
+{
+    rate
+    {
+        type    firstOrder;
+        //rho = k * var
+        k       k_dis;
+        var     X_c;
+    }
+    yields
+    {
+        S_ic    //[0 0 0 0 0 0 0]
+            "-(f_si_xc*C_si - C_xc + f_ch_xc*C_ch + f_pr_xc*C_pr + f_li_xc*C_li + f_xi_xc*C_xi)";
+        S_i     "f_si_xc";
+        X_c     -1;
+        X_ch    "f_ch_xc";
+        X_pr    "f_pr_xc";
+        X_li    "f_li_xc";
+        X_i     "f_xi_xc";
+    }
+}
+hydrolysisOfCarbohydrates
+{
+    rate
+    {
+        type    firstOrder;
+        //rho = k * var
+        k       k_hyd_ch;
+        var     X_ch;
+    }
+    yields
+    {
+        S_su    1;
+//        S_ic    "C_ch - C_su";
+        X_ch    -1;
+    }
+}
+hydrolysisOfProteins
+{
+    rate
+    {
+        type    firstOrder;
+        //rho = k * var
+        k       k_hyd_pr;
+        var     X_pr;
+    }
+    yields
+    {
+        S_aa    1;
+//        S_ic    "C_pr - C_aa";
+        X_pr    -1;
+    }
+}
+hydrolysisOfLipids
+{
+    rate
+    {
+        type    firstOrder;
+        //rho = k * var
+        k       k_hyd_li;
+        var     X_li;
+    }
+    yields
+    {
+        S_su    "1-f_fa_li";
+        S_fa    "f_fa_li";
+        S_ic    //[0 0 0 0 0 0 0]
+            "-((1 - f_fa_li) * C_su + f_fa_li * C_fa - C_li)";
+        X_li    -1;
+    }
+}
+uptakeOfSugars
+{
+    rate
+    {
+        type    monod;
+        // rho = k_m * S_var * X_var / (K_s + S_var)
+        k_m     k_m_su;
+        K_s     k_s_su;
+        S_var   S_su;
+        X_var   X_su;
+    }
+    rateInhibitions (i_in_lim i_ph_aa); // I0
+    yields
+    {
+        S_su    -1;
+        S_bu    "(1 - Y_su) * f_bu_su";
+        S_pro   "(1 - Y_su) * f_pro_su";
+        S_ac    "(1 - Y_su) * f_ac_su";
+        S_h2    "(1 - Y_su) * f_h2_su";
+        S_ic    //[0 0 0 0 0 0 0]
+            "-((Y_su-1)*C_su + (1-Y_su)*f_bu_su*C_bu + (1-Y_su)*f_pro_su*C_pro + (1-Y_su)*f_ac_su*C_ac)";
+        S_in    //[0 0 0 0 0 0 0]
+            "-Y_su * N_bac";
+        X_su    "Y_su";
+    }
+}
+uptakeOfAminoAcids
+{
+    rate
+    {
+        type    monod;
+        // rho = k_m * S_var * X_var / (K_s + S_var)
+        k_m     k_m_aa;
+        K_s     k_s_aa;
+        S_var   S_aa;
+        X_var   X_aa;
+    }
+    rateInhibitions (i_in_lim i_ph_aa); //I0
+    yields
+    {
+        S_aa    -1;
+        S_va    "(1 - Y_aa) * f_va_aa";
+        S_bu    "(1 - Y_aa) * f_bu_aa";
+        S_pro   "(1 - Y_aa) * f_pro_aa";
+        S_ac    "(1 - Y_aa) * f_ac_aa";
+        S_h2    "(1 - Y_aa) * f_h2_aa";
+        S_ic    //[0 0 0 0 0 0 0]
+            "1*C_aa - (1-Y_aa)*f_va_aa*C_va - (1-Y_aa)*f_bu_aa*C_bu - (1-Y_aa)*f_pro_aa*C_pro - (1-Y_aa)*f_ac_aa*C_ac - Y_aa*C_bac";
+        S_in    //[0 0 0 0 0 0 0]
+            "N_aa - Y_aa * N_bac";
+        X_aa    "Y_aa";
+    }
+}
+uptakeOfLCFA
+{
+    rate
+    {
+        type    monod;
+        // rho = k_m * S_var * X_var / (K_s + S_var)
+        k_m     k_m_fa;
+        K_s     k_s_fa;
+        S_var   S_fa;
+        X_var   X_fa;
+    }
+    rateInhibitions (i_in_lim i_ph_aa i_h2_fa); //I1
+    yields
+    {
+        S_fa    -1;
+        S_ac    "(1 - Y_fa) * 0.7";
+        S_h2    "(1 - Y_fa) * 0.3";
+        S_ic    //[0 0 0 0 0 0 0]
+            "-(-C_fa + (1 - Y_fa) * 0.7 * C_ac + Y_fa * C_bac)";
+        S_in    //[0 0 0 0 0 0 0]
+            "-Y_fa * N_bac";
+        X_fa    "Y_fa";
+    }
+}
+uptakeOfValerate
+{
+    rate
+    {
+        type    monod;
+        // rho = k_m * S_var * X_var / (K_s + S_var)
+        k_m     k_m_c4;
+        K_s     k_s_c4;
+        S_var   S_va;
+        X_var   X_c4;
+    }
+    rateInhibitions (i_in_lim i_ph_aa i_h2_c4 i_va_bu); //I2 and I_va_bu
+    yields
+    {
+        S_va    -1;
+        S_pro   "(1 - Y_c4) * 0.54";
+        S_ac    "(1 - Y_c4) * 0.31";
+        S_h2    "(1 - Y_c4) * 0.15";
+        S_ic    //[0 0 0 0 0 0 0]
+            "-(-C_va + (1-Y_c4)*0.54*C_pro + (1-Y_c4)*0.31*C_ac + Y_c4*C_bac)";
+        S_in    //[0 0 0 0 0 0 0]
+            "-Y_c4 * N_bac";
+        X_c4    "Y_c4";
+    }
+}
+uptakeOfButyrate
+{
+    rate
+    {
+        type    monod;
+        // rho = k_m * S_var * X_var / (K_s + S_var)
+        k_m     k_m_c4;
+        K_s     k_s_c4;
+        S_var   S_bu;
+        X_var   X_c4;
+    }
+    rateInhibitions (i_in_lim i_ph_aa i_h2_c4 i_bu_va); //I2 and I_bu_va
+    yields
+    {
+        S_bu    -1;
+        S_ac    "(1 - Y_c4) * 0.8";
+        S_h2    "(1 - Y_c4) * 0.2";
+        S_ic    //[0 0 0 0 0 0 0]
+            "-(-C_bu + (1-Y_c4)*0.8*C_ac + Y_c4*C_bac)";
+        S_in    //[0 0 0 0 0 0 0]
+            "-Y_c4 * N_bac";
+        X_c4    "Y_c4";
+    }
+}
+uptakeOfPropionate
+{
+    rate
+    {
+        type    monod;
+        // rho = k_m * S_var * X_var / (K_s + S_var)
+        k_m     k_m_pr;
+        K_s     k_s_pro;
+        S_var   S_pro;
+        X_var   X_pro;
+    }
+    rateInhibitions (i_in_lim i_ph_aa i_h2_pro); //I3
+    yields
+    {
+        S_pro   -1;
+        S_ac    "(1 - Y_pro) * 0.57";
+        S_h2    "(1 - Y_pro) * 0.43";
+        S_ic    //[0 0 0 0 0 0 0]
+            "-(-C_pro + (1-Y_pro)*0.57*C_ac + Y_pro*C_bac)";
+        S_in    //[0 0 0 0 0 0 0]
+            "-Y_pro * N_bac";
+        X_pro   "Y_pro";
+    }
+}
+uptakeOfAcetate
+{
+    rate
+    {
+        //type        nonReacting;
+        //dimensions  [1 -3 -1 0 0 0 0];
+        type    monod;
+        // rho = k_m * S_var * X_var / (K_s + S_var)
+        k_m     k_m_ac;
+        K_s     k_s_ac;
+        S_var   S_ac;
+        X_var   X_ac;
+    }
+    rateInhibitions (i_in_lim i_ph_ac i_nh3); //I4
+    yields
+    {
+        S_ac    -1;
+        S_ch4   "1 - Y_ac";
+        S_ic    //[0 0 0 0 0 0 0]
+            "C_ac + (Y_ac-1)*C_ch4 - Y_ac*C_bac";
+        S_in    //[0 0 0 0 0 0 0]
+            "-Y_ac * N_bac";
+        X_ac    "Y_ac";
+    }
+}
+uptakeOfHydrogen
+{
+    rate
+    {
+//        type    nonReacting;
+//        dimensions  [1 -3 -1 0 0 0 0];
+        type    monod;
+        // rho = k_m * S_var * X_var / (K_s + S_var)
+        k_m     k_m_h2;
+        K_s     k_s_h2;
+        S_var   S_h2;
+        X_var   X_h2;
+    }
+    rateInhibitions (i_in_lim i_ph_h2); //I5
+    yields
+    {
+        S_h2    -1;
+        S_ch4   "1 - Y_h2";
+        S_ic    //[0 0 0 0 0 0 0]
+            "(Y_h2 - 1) * C_ch4 - Y_h2 * C_bac";
+        S_in    //[0 0 0 0 0 0 0]
+            "-Y_h2 * N_bac";
+        X_h2    "Y_h2";
+    }
+}
+decayOf_X_su
+{
+    rate
+    {
+        type    firstOrder;
+        //rho = k * var
+        k       k_dec_X_su;
+        var     X_su;
+    }
+    yields
+    {
+        S_ic    //[0 0 0 0 0 0 0]
+            "C_bac - C_xc";
+        X_c     1;
+        X_su    -1;
+    }
+}
+decayOf_X_aa
+{
+    rate
+    {
+        type    firstOrder;
+        //rho = k * var
+        k       k_dec_X_aa;
+        var     X_aa;
+    }
+    yields
+    {
+        S_ic    //[0 0 0 0 0 0 0]
+            "C_bac - C_xc";
+        X_c     1;
+        X_aa    -1;
+    }
+}
+decayOf_X_fa
+{
+    rate
+    {
+        type    firstOrder;
+        //rho = k * var
+        k       k_dec_X_fa;
+        var     X_fa;
+    }
+    yields
+    {
+        S_ic    //[0 0 0 0 0 0 0]
+            "C_bac - C_xc";
+        X_c     1;
+        X_fa    -1;
+    }
+}
+decayOf_X_c4
+{
+    rate
+    {
+        type    firstOrder;
+        //rho = k * var
+        k       k_dec_X_c4;
+        var     X_c4;
+    }
+    yields
+    {
+        S_ic    //[0 0 0 0 0 0 0]
+            "C_bac - C_xc";
+        X_c     1;
+        X_c4    -1;
+    }
+}
+decayOf_X_pro
+{
+    rate
+    {
+        type    firstOrder;
+        //rho = k * var
+        k       k_dec_X_pro;
+        var     X_pro;
+    }
+    yields
+    {
+        S_ic    //[0 0 0 0 0 0 0]
+            "C_bac - C_xc";
+        X_c     1;
+        X_pro   -1;
+    }
+}
+decayOf_X_ac
+{
+    rate
+    {
+        type    firstOrder;
+        //rho = k * var
+        k       k_dec_X_ac;
+        var     X_ac;
+    }
+    yields
+    {
+        S_ic    //[0 0 0 0 0 0 0]
+            "C_bac - C_xc";
+        X_c     1;
+        X_ac    -1;
+    }
+}
+decayOf_X_h2
+{
+    rate
+    {
+        type    firstOrder;
+        //rho = k * var
+        k       k_dec_X_h2;
+        var     X_h2;
+    }
+    yields
+    {
+        S_ic    //[0 0 0 0 0 0 0]
+            "C_bac - C_xc";
+        X_c     1;
+        X_h2    -1;
+    }
+}
+/*transferOf_h2
+{
+    rate
+    {
+        type    simpleGas;
+        // rho = k_L_a * (S_var - n * K_H * p_var)
+        k_L_a   k_l_a;
+        S_var   S_h2;
+        n       kg_m_h2;
+        K_H     k_h_h2;
+        p_var   p_gas_h2;
+    }
+    yields
+    {
+        S_h2        -1;
+        S_h2_g      1;
+    }
+}
+transferOf_ch4
+{
+    rate
+    {
+        type    simpleGas;
+        // rho = k_L_a * (S_var - n * K_H * p_var)
+        k_L_a   k_l_a;
+        S_var   S_ch4;
+        n       kg_m_ch4;
+        K_H     k_h_ch4;
+        p_var   p_gas_ch4;
+    }
+    yields
+    {
+        S_ch4       -1;
+        S_ch4_g     1;
+    }
+}
+transferOf_co2
+{
+    rate
+    {
+        type    simpleGas;
+        // rho = k_L_a * (S_var - n * K_H * p_var)
+        k_L_a   k_l_a;
+        S_var   S_co2;
+        n       kg_m_co2;
+        K_H     k_h_co2;
+        p_var   p_gas_co2;
+    }
+    yields
+    {
+        S_ic        -1;
+        S_co2_g     1;
+    }
+}*/
+
+
+/*
+reactionName
+{
+    rate
+    {
+        type (rts)
+            nonReacting
+                [rho = 0]
+            firstOrder
+                [rho = k * var]
+                k
+                var
+            simpleGas
+                [rho = k_L_a * (S_var + n * K_H * p_var)]
+                k_L_a
+                S_var
+                n
+                K_H
+                p_var
+            acidBase
+                [rho = k_AB * (S_var_m * S_H_p - K_a * S_hvar)] or
+                [rho = k_AB * (S_var_m * (K_a + S_H_p) - K_a * S_var)]
+                k_AB
+                K_a
+                S_var_m
+                S_var or S_hvar
+                S_H_p
+            monod
+                [rho = k_m * S_var * X_var / (K_s + S_var)]
+                k_m
+                K_s
+                S_var
+                X_var
+            uncompetitiveMonod
+                [rho = k_m * S_var * X_var * S_I / (K_s * S_I + S_var * (S_I + K_I) )]
+                k_m
+                K_s
+                K_I
+                S_var
+                X_var
+                S_I
+            competitiveMonod
+                [rho = k_m * S_var * X_var * K_I / (K_s * (K_I + S_I) + S_var * K_I)]
+                k_m
+                K_s
+                K_I
+                S_var
+                S_I
+                X_var
+            custom
+                function    "equation";
+                Jacobian
+                {
+                    variable    "equation";
+                    variable    "equation";
+                }
+        rhoInhibitions (wordList);
+        // (dimensions [optional, dimless if not specified];)
+    }
+    yields
+    {
+        variableName    "equation";
+        variableName    or any other format accepted by equationReader;
+        etc...
+        Jacobian
+        {
+            yieldVariableName
+            {
+                wrtVariableName    "equation";
+                wrtVariableName    "equation";
+                etc...
+            }
+        }
+    }
+}
+*/
+
+// ************************************************************************* //

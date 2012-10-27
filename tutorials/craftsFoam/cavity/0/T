@@ -1,0 +1,76 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      T;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#includeIfPresent "../constant/universalBoundaryConditions"
+#includeIfPresent "../../../../constant/universalBoundaryConditions"
+
+dimensions      [0 0 0 1 0 0 0];
+
+internalField   uniform $initT;
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedGradient;
+        gradient        uniform $insulatedWallGradientT;
+    }
+    outlet
+    {
+        type            fixedGradient;
+        gradient        uniform $insulatedWallGradientT;
+    }
+    heater
+    {
+        type            fixedGradient;
+        gradient        uniform $heaterOffGradientT;
+    }
+    north
+    {
+        type            fixedGradient;
+        gradient        uniform $topSurfaceWallGradientT;
+    }
+    west
+    {
+        type            fixedGradient;
+        gradient        uniform $insulatedWallGradientT;
+    }
+    east
+    {
+        type            fixedGradient;
+        gradient        uniform $insulatedWallGradientT;
+    }
+    southwest
+    {
+        type            fixedGradient;
+        gradient        uniform $insulatedWallGradientT;
+    }
+    southeast
+    {
+        type            fixedGradient;
+        gradient        uniform $insulatedWallGradientT;
+    }
+    front
+    {
+        type            empty;
+    }
+    back
+    {
+        type            empty;
+    }
+}
+
+// ************************************************************************* //

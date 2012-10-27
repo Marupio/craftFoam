@@ -1,0 +1,108 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+// The case directory for ADM-MDA tends to be complex, which means modifying //
+// case settings can be tedious.  Changing one setting often translates into //
+// modifying numerous files.  Therefore, OpenFOAM's dictionary #include      //
+// framework is used.  Include this file at the top of dictionaries to       //
+// simplify these modifications.  This file is for boundary conditions.      //
+
+// *** Fluid dynamic variables ***
+// Initial conditions
+initEpsilon     0.01;
+initK           0.1;
+initNut         0;
+initT           308.15;
+UFlowName       UGlobal;
+
+// Inlet boundary values
+inletEpsilon    0.01;
+inletK          0.1;
+inletT          308.15;
+inletU          0; //0.05;
+
+// Wall boundary values
+topSurfaceWallGradientT 0;
+insulatedWallGradientT  -5;
+heaterOffGradientT      -5;
+heaterOnGradientT       500;
+
+// Outlet boundary values
+pRefValue   0;
+pRefPoint   (10.0 1.0 0);
+
+// *** Reaction variables ***
+// Initial conditions
+initS_aa        0.010808;
+initS_ac        0.50765;
+initS_ac_m      0.50616;
+initS_an        1.5293e-38;
+initS_bu        0.031123;
+initS_bu_m      0.031017;
+initS_cat       3.3531e-39;
+initS_ch4       0.055598;
+initS_fa        0.29533;
+initS_h2        4.9652e-7;
+initS_hco3_m    92.928;
+initS_h_p       0.000053469;
+initS_i         3.2327;
+initS_ic        102.58;
+initS_in        103.73;
+initS_nh4_p     101.5342;
+initS_pro       0.043974;
+initS_pro_m     0.043803;
+initS_su        0.024309;
+initS_va        0.02329;
+initS_va_m      0.023204;
+initX_aa        0.43307;
+initX_ac        0.57682;
+initX_c         7.5567;
+initX_c4        0.18404;
+initX_ch        0.074679;
+initX_fa        0.44433;
+initX_h2        0.28774;
+initX_i         18.6685;
+initX_li        0.11202;
+initX_pr        0.074679;
+initX_pro       0.087261;
+initX_su        0.57565;
+
+// Inlet boundary values
+inletS_aa       0.05;
+inletS_ac       1e-12;
+inletS_ac_m     1e-12;
+inletS_an       70;
+inletS_bu       1e-12;
+inletS_bu_m     1e-12;
+inletS_cat      71;
+inletS_ch4      1e-12;
+inletS_fa       1e-12;
+inletS_h2       1e-12;
+inletS_hco3_m   1e-12;
+inletS_h_p      1e-12;
+inletS_i        0.06;
+inletS_ic       6;
+inletS_in       70;
+inletS_nh4_p    1e-12;
+inletS_pro      1e-12;
+inletS_pro_m    1e-12;
+inletS_su       1e-12;
+inletS_va       1e-12;
+inletS_va_m     1e-12;
+inletX_aa       1e-12;
+inletX_ac       1e-12;
+inletX_c        37;
+inletX_c4       1e-12;
+inletX_ch       1e-12;
+inletX_fa       1e-12;
+inletX_h2       1e-12;
+inletX_i        12;
+inletX_li       1e-12;
+inletX_pr       1e-12;
+inletX_pro      1e-12;
+inletX_su       1e-12;
+

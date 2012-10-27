@@ -1,0 +1,26 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+// The case directory for ADM-MDA tends to be complex, which means modifying //
+// case settings can be tedious.  Changing one setting often translates into //
+// modifying numerous files.  Therefore, OpenFOAM's dictionary #include      //
+// framework is used.  Include this file at the top of dictionaries to       //
+// simplify these modifications.  This file is for case settings.            //
+
+// Thermostat
+Thot    309.15;
+Tcold   307.15;
+
+// Mixer timer
+mixEvery    8640001; // 3600;   // 60 minutes
+mixFor      600;    // 10 minutes
+mixerStarts off;
+
+// Fluid injection timer
+flowEvery   8640000; // 86400;  // 1 day
+flowFor     120;    // 2 minutes
+flowStarts  off;

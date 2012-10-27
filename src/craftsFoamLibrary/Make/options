@@ -1,0 +1,11 @@
+EXE_INC = \
+    -ftemplate-depth-1400 \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/VectorN/lnInclude \
+    -I../../../reactionReader/src/reactionReader/lnInclude
+
+LIB_LIBS = \
+	-lfiniteVolume \
+    -L$(FOAM_USER_LIBBIN) \
+	-lVectorN \
+    -lreactionReader

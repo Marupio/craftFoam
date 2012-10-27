@@ -1,0 +1,121 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      admGasDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+universal
+{
+    odeSolver                   RK; //RK;//SIBS;//KRR4;
+    odeSolverMaxIterations      1000000;
+    epsilon                     1e-6;
+    defaultMassConvergence      1e-6;
+    defaultDeltaConvergence     1e-6;
+    defaultNearZeroMassScale    1e-12;
+    defaultNearZeroDeltaScale   1e-12;
+    //outputDictionary        gasModel;
+    surfacePatch                north;
+    gasVolume                   V_gas;
+    R                           R;
+    T                           T;
+    k_p                         k_p;
+    k_gasCutOff                 k_gasCutOff;
+    p_gasOverPressure           p_gasOverPressure;
+    p_atm                       p_atm;
+    p_liq                       p_gas_h2o;
+}
+
+species
+{
+    ch4
+    {
+        liquidVariable      S_ch4;
+        conversionToMoles   kg_m_ch4;
+        k_L_a               k_l_a;
+        k_H                 k_h_ch4;
+        k_b                 k_b_ch4;
+        formBubbles         no;
+        //upperLimit          scalar;
+        //lowerLimit          scalar;
+        relaxation          0.3;
+    }
+    co2
+    {
+        liquidVariable      S_co2;
+        conversionToMoles   kg_m_co2;
+        k_L_a               k_l_a;
+        k_H                 k_h_co2;
+        k_b                 k_b_co2;
+        formBubbles         no;
+        //upperLimit          scalar;
+        //lowerLimit          scalar;
+        relaxation          0.3;
+    }
+    h2
+    {
+        liquidVariable      S_h2;
+        conversionToMoles   kg_m_h2;
+        k_L_a               k_l_a;
+        k_H                 k_h_h2;
+        k_b                 k_b_h2;
+        formBubbles         no;
+        //upperLimit          scalar;
+        //lowerLimit          scalar;
+        relaxation          0.3;
+    }
+}
+
+/*
+universal
+{
+    odeSolver                   odeSolverName;
+    odeSolverMaxIterations      label; // [default 10000]
+    epsilon                     scalar;
+    defaultDeltaConvergence     scalar; // [optional]
+    defaultMassConvergence      scalar; // [optional]
+    defaultNearZeroDeltaScale   scalar; // [default SMALL]
+    defaultNearZeroMassScale    scalar; // [default SMALL]
+    outputDictionary            gasModel; // [default gasModel]
+    surfacePatch                boundaryName;
+    gasVolume                   coefficient; // Must be constant & uniform
+    R                           coefficient; // Must be constant & uniform
+    T                           variableName;
+    k_p                         coefficient; // Must be constant & uniform
+    kGasCutOff                  coefficient; // Must be constant & uniform
+    p_atm                       coefficient; // Must be uniform
+    p_liq                       coefficient;
+}
+
+species
+{
+    gasName
+    {
+        liquidVariable      variableName;
+        conversionToMoles   coefficient; // Must be constant & uniform
+        k_L_a               coefficient; // Must be uniform
+        k_H                 coefficient;
+        k_b                 coefficient;
+        formBubbles         yes/no;
+        upperLimit          scalar; // [default VGREAT]
+        lowerLimit          scalar; // [default 0]
+        relaxation          scalar; // [default 1.0]
+        deltaConvergence    scalar; // [required if no default]
+        massConvergence     scalar; // [required if no default]
+        nearZeroDeltaScale  scalar; // [default defined above]
+        nearZeroMassScale   scalar; // [default defined above]
+    }
+// etc...
+}
+*/
+
+// ************************************************************************* //

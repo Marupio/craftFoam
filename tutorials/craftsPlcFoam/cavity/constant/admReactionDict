@@ -1,0 +1,165 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      admReactionDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+disintegration
+{
+    rate
+    {
+        type    firstOrder;
+        //rho = k * var
+        k       k_dis;
+        var     X_c;
+    }
+    yields
+    {
+        S_ic    //[0 0 0 0 0 0 0]
+            "-(f_si_xc*C_si - C_xc + f_ch_xc*C_ch + f_pr_xc*C_pr + f_li_xc*C_li + f_xi_xc*C_xi)";
+        S_i     "f_si_xc";
+        X_c     -1;
+        X_ch    "f_ch_xc";
+        X_pr    "f_pr_xc";
+        X_li    "f_li_xc";
+        X_i     "f_xi_xc";
+    }
+}
+hydrolysisOfCarbohydrates
+{
+    rate
+    {
+        type    firstOrder;
+        //rho = k * var
+        k       k_hyd_ch;
+        var     X_ch;
+    }
+    yields
+    {
+        S_su    1;
+        X_ch    -1;
+    }
+}
+hydrolysisOfProteins
+{
+    rate
+    {
+        type    firstOrder;
+        //rho = k * var
+        k       k_hyd_pr;
+        var     X_pr;
+    }
+    yields
+    {
+        S_aa    1;
+//        S_ic    "C_pr - C_aa";
+        X_pr    -1;
+    }
+}
+hydrolysisOfLipids
+{
+    rate
+    {
+        type    firstOrder;
+        //rho = k * var
+        k       k_hyd_li;
+        var     X_li;
+    }
+    yields
+    {
+        S_su    "1-f_fa_li";
+        S_fa    "f_fa_li";
+        S_ic    //[0 0 0 0 0 0 0]
+            "-((1 - f_fa_li) * C_su + f_fa_li * C_fa - C_li)";
+        X_li    -1;
+    }
+}
+
+/*
+reactionName
+{
+    rate
+    {
+        type (rts)
+            nonReacting
+                [rho = 0]
+            firstOrder
+                [rho = k * var]
+                k
+                var
+            simpleGas
+                [rho = k_L_a * (S_var + n * K_H * p_var)]
+                k_L_a
+                S_var
+                n
+                K_H
+                p_var
+            acidBase
+                [rho = k_AB * (S_var_m * S_H_p - K_a * S_hvar)] or
+                [rho = k_AB * (S_var_m * (K_a + S_H_p) - K_a * S_var)]
+                k_AB
+                K_a
+                S_var_m
+                S_var or S_hvar
+                S_H_p
+            monod
+                [rho = k_m * S_var * X_var / (K_s + S_var)]
+                k_m
+                K_s
+                S_var
+                X_var
+            uncompetitiveMonod
+                [rho = k_m * S_var * X_var * S_I / (K_s * S_I + S_var * (S_I + K_I) )]
+                k_m
+                K_s
+                K_I
+                S_var
+                X_var
+                S_I
+            competitiveMonod
+                [rho = k_m * S_var * X_var * K_I / (K_s * (K_I + S_I) + S_var * K_I)]
+                k_m
+                K_s
+                K_I
+                S_var
+                S_I
+                X_var
+            custom
+                function    "equation";
+                Jacobian
+                {
+                    variable    "equation";
+                    variable    "equation";
+                }
+        rhoInhibitions (wordList);
+        // (dimensions [optional, dimless if not specified];)
+    }
+    yields
+    {
+        variableName    "equation";
+        variableName    or any other format accepted by equationReader;
+        etc...
+        Jacobian
+        {
+            yieldVariableName
+            {
+                wrtVariableName    "equation";
+                wrtVariableName    "equation";
+                etc...
+            }
+        }
+    }
+}
+*/
+
+// ************************************************************************* //

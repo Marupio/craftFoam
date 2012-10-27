@@ -1,0 +1,22 @@
+EXE_INC = \
+    -ftemplate-depth-1400 \
+    -I$(LIB_SRC)/turbulenceModels/incompressible/turbulenceModel \
+    -I$(LIB_SRC)/transportModels \
+    -I$(LIB_SRC)/transportModels/incompressible/singlePhaseTransportModel \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/VectorN/lnInclude \
+    -I../../src/craftsFoamLibrary/lnInclude \
+    -I../../../plcEmulator/src/plcEmulator/lnInclude
+
+EXE_LIBS = \
+    -L$(FOAM_USER_LIBBIN) \
+    -lincompressibleTurbulenceModel \
+    -lincompressibleRASModels \
+    -lincompressibleLESModels \
+    -lincompressibleTransportModels \
+    -lfiniteVolume \
+    -lVectorN \
+    -lmeshTools \
+    -llduSolvers \
+    -lreactionReader \
+    -lplcEmulator

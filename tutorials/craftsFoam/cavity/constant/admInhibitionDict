@@ -1,0 +1,157 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      admInhibitionDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+i_ph_aa
+{
+    type        empiricalLowerSwitch;
+    // pH < pH_UL: I = exp(-3 * ((pH_var - pH_UL) / (pH_UL - pH_LL)) ^ 2
+    // pH >= pH_UL: 1
+    pH_LL       ph_ll_aa;
+    pH_UL       ph_ul_aa;
+    S_Hp_var    S_h_p;
+}
+i_ph_ac
+{
+    type        empiricalLowerSwitch;
+    // pH < pH_UL: I = exp(-3 * ((pH_var - pH_UL) / (pH_UL - pH_LL)) ^ 2
+    // pH >= pH_UL: 1
+    pH_LL       ph_ll_ac;
+    pH_UL       ph_ul_ac;
+    S_Hp_var    S_h_p;
+}
+i_ph_h2
+{
+    type        empiricalLowerSwitch;
+    // pH < pH_UL: I = exp(-3 * ((pH_var - pH_UL) / (pH_UL - pH_LL)) ^ 2
+    // pH >= pH_UL: 1
+    pH_LL       ph_ll_h2;
+    pH_UL       ph_ul_h2;
+    S_Hp_var    S_h_p;
+}
+i_in_lim
+{
+    type        secondarySubstrate;
+    // I = S_I / (S_I + K_I)
+    S_I         S_in;
+    K_I         k_i_in;
+}
+i_h2_c4
+{
+    type        nonCompetitive;
+    // I = K_I / (K_I + S_I)
+    K_I         k_i_h2_c4;
+    S_I         S_h2;
+}
+i_h2_fa
+{
+    type        nonCompetitive;
+    // I = K_I / (K_I + S_I)
+    K_I         k_i_h2_fa;
+    S_I         S_h2;
+}
+i_h2_pro
+{
+    type        nonCompetitive;
+    // I = K_I / (K_I + S_I)
+    K_I         k_i_h2_pro;
+    S_I         S_h2;
+}
+i_nh3
+{
+    type        nonCompetitive;
+    // I = K_I / (K_I + S_I)
+    K_I         k_i_nh3;
+    S_I         S_nh3;
+}
+i_va_bu
+{
+    type        competitiveUptake;
+    // I = S_var / (S_var + S_I)
+    S_var       S_va;
+    S_I         S_bu;
+}
+i_bu_va
+{
+    type        competitiveUptake;
+    // I = S_var / (S_var + S_I)
+    S_var       S_bu;
+    S_I         S_va;
+}
+
+/*
+    The coefficient format, i.e.
+        keyword     coefficient;
+    can have any of these formats:
+        keyword     coefficientName; // * [1] - see below
+        keyword     scalar;
+        keyword     [dimensionSet] scalar;
+        keyword     ignoredWord [dimensionSet] scalar;
+        keyword     "equation";
+        keyword     [dimensionSet] "equation";
+        keyword     ignoredWord [dimensionSet] "equation";
+    * [1] - if the coefficient is already defined in admCoefficientDict.
+
+inhibitionName
+{
+    type:
+        type    nonCompetitive;
+            // [I = K_I / (K_I + S_I)]
+            K_I     coefficient;
+            S_I     variableName;
+        type    empiricalUpperAndLower;
+            // [I = (1 + 2 * 10 ^ (0.5 * (pH_LL - pH_UL))) /
+            //     (1 + 10 ^ (pH_var - pH_UL) + 10 ^ (pH_LL - pH_var))]
+            pH_LL               coefficient;
+            pH_UL               coefficient;
+            pH_var or S_Hp_var  variableName;
+        type    empiricalLowerSwitch;
+            // [pH < pH_UL: I = exp(-3 * ((pH_var - pH_UL) / (pH_UL - pH_LL)) ^ 2
+            //     pH >= pH_UL: 1]
+            pH_LL               coefficient;
+            pH_UL               coefficient;
+            pH_var or S_Hp_var  variableName;
+        type    empiricalLowerTanh;
+            // [see wiki for equation]
+            a                   coefficient;
+            pH_LL               coefficient;
+            pH_UL               coefficient;
+            pH_var or S_Hp_var  variableName;
+        type    empiricalLowerHill;
+            // [see wiki for equation]
+            n                   coefficient;
+            pH_LL               coefficient;
+            pH_UL               coefficient;
+            pH_var or S_Hp_var  variableName;
+        type    competitiveUptake;
+            // [I = S_var / (S_var + S_I)]
+            S_var   variableName;
+            S_I     variableName;
+        type    secondarySubstrate;
+            // [I = S_I / (S_I + K_I)]
+            S_I     variableName;
+            K_I     coefficient;
+        type    custom;
+            function    "equation";
+            Jacobian    // option
+            {
+                variableName    "equation";
+                variableName    "equation";
+                // etc...
+            }
+}
+*/
+
+// ************************************************************************* //

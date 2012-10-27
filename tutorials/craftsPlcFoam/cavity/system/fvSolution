@@ -1,0 +1,387 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+        solver           PBiCG;
+    version     2.0.01;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    blockVar
+    {
+        solver           BiCGStab;
+        preconditioner   Cholesky;
+
+        tolerance        1e-12;
+        relTol           0.01;
+
+        minIter          1;
+        maxIter          1000;
+    }
+
+    p
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-12;
+        relTol          0.1;
+    }
+
+    pFinal
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-20;
+        relTol          0;
+    }
+
+    U
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        relTol          0;
+    }
+
+    k
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        relTol          0;
+    }
+
+    epsilon
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        relTol          0;
+    }
+
+    R
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        relTol          0;
+    }
+
+    S_su
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    S_aa
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    S_fa
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    S_va
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    S_bu
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    S_pro
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    S_ac
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    S_ch4
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    S_ic
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    S_in
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    S_i
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    X_c
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    X_ch
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    X_pr
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    X_li
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    X_su
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    X_aa
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    X_fa
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    X_c4
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    X_pro
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    X_ac
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    X_h2
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    X_i
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    S_cat
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    S_an
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    /*S_h2_g
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    S_ch4_g
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    S_co2_g
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+*/
+    S_h2
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    S_h_p
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    S_va_m
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    S_bu_m
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    S_pro_m
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    S_ac_m
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    S_hco3_m
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    S_nh4_p
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+    T
+    {
+        solver           PBiCG;
+        preconditioner   DILU;
+        tolerance        1e-15;
+        relTol           0.01;
+    }
+
+}
+
+PISO
+{
+    solver          PBiCG;
+    nCorrectors     2;
+    nNonOrthogonalCorrectors 0;
+    pRefCell        0;
+    pRefValue       0.01;
+}
+
+// ************************************************************************* //

@@ -1,0 +1,9 @@
+craftsModel/craftsModelTemplates.C
+
+craftsFlowModels/craftsFlow/craftsFlow.C
+craftsFlowModels/craftsSteadyStateFlow/craftsSteadyStateFlow.C
+
+craftsUdfs/craftsUdfs/craftsUdfsTemplates.C
+craftsUdfs/craftsEmptyUdfs/craftsEmptyUdfsTemplates.C
+
+LIB = $(FOAM_USER_LIBBIN)/libcraftsFoamLibrary
