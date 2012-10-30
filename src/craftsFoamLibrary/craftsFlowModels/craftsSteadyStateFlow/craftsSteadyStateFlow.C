@@ -35,7 +35,7 @@ namespace Foam
 
     addToRunTimeSelectionTable
     (
-        admFlow,
+        craftsFlow,
         craftsSteadyStateFlow,
         nameConstructor
     );
@@ -52,7 +52,7 @@ Foam::craftsSteadyStateFlow::craftsSteadyStateFlow
     admReactionReader& model
 )
 :
-    admFlow(U, phi, p, model)
+    craftsFlow(U, phi, p, model)
 {}
 
 

@@ -61,7 +61,7 @@ void solve
 (
     admTime& runTime,
     fvMesh& mesh,
-    plcController& control
+    plcEmulator& control
 )
 {
 #   include "createFields.H"

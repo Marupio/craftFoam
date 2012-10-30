@@ -3,6 +3,8 @@ EXE_INC = \
     -I$(LIB_SRC)/transportModels \
     -I$(LIB_SRC)/transportModels/incompressible/singlePhaseTransportModel \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I../../../equationReader/src/equationReader/lnInclude \
+    -I../../../reactionReader/src/reactionReader/lnInclude \
     -I../craftsFoamLibrary/lnInclude
 
 
@@ -15,4 +17,6 @@ LIB_LIBS = \
     -lfiniteVolume \
     -lmeshTools \
     -llduSolvers \
+    -lequationReader \
+    -lreactionReader \
     -lcraftsLibrary

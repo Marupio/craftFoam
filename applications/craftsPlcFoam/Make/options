@@ -5,7 +5,10 @@ EXE_INC = \
     -I$(LIB_SRC)/transportModels/incompressible/singlePhaseTransportModel \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/VectorN/lnInclude \
+    -I../../../equationReader/src/equationReader/lnInclude \
+    -I../../../reactionReader/src/reactionReader/lnInclude \
     -I../../src/craftsFoamLibrary/lnInclude \
+    -I../../../multiSolver/src/multiSolver/lnInclude \
     -I../../../plcEmulator/src/plcEmulator/lnInclude
 
 EXE_LIBS = \
@@ -18,5 +21,8 @@ EXE_LIBS = \
     -lVectorN \
     -lmeshTools \
     -llduSolvers \
+    -lequationReader \
     -lreactionReader \
+    -lcraftsFoamLibrary \
+    -lmultiSolver \
     -lplcEmulator

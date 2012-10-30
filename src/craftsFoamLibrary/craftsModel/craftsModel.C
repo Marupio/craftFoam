@@ -26,7 +26,7 @@ License
 
 //#include "IOcraftsModelReferencer.H"
 #include "craftsModel.H"
-#include "admFlow.H"
+#include "craftsFlow.H"
 #include "IOstreams.H"
 #include "token.H"
 
@@ -214,7 +214,7 @@ Foam::craftsModel<matrixSize>::craftsModel
     functionHooksName_(admSettingsDict_.lookup("functionHooks")),
     hooks_
     (
-        admFcHooks<matrixSize>::New
+        craftsUdfs<matrixSize>::New
         (
             functionHooksName_,
             *this,
@@ -224,7 +224,7 @@ Foam::craftsModel<matrixSize>::craftsModel
 
     flow_
     (
-        admFlow::New
+        craftsFlow::New
         (
             U,
             phi,

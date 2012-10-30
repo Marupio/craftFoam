@@ -39,7 +39,7 @@ Author
 #ifndef craftsSteadyStateFlow_H
 #define craftsSteadyStateFlow_H
 
-#include "admFlow.H"
+#include "craftsFlow.H"
 #include "admReactionReader.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -57,7 +57,7 @@ namespace Foam
 
 class craftsSteadyStateFlow
 :
-    public admFlow
+    public craftsFlow
 {
 
 public:

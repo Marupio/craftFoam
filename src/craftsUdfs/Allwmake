@@ -1,6 +1,7 @@
 #!/bin/bash
 cd ${0%/*} || exit 1    # run from this directory
 
+wmake libso craftsUdfsShared && \
 wmake libso craftsSh2GasUdfs && \
 wmake libso craftsSh2IonsGasUdfs && \
 wmake libso craftsSh2IonsUdfs && \

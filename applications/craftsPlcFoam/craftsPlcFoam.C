@@ -48,7 +48,7 @@ Author
 #include "argList.H"
 #include "OFstream.H"
 #include "multiSolver.H"
-#include "plcController.H"
+#include "plcEmulator.H"
 #include "craftsModel.H"
 #include "customUserDefines.H"
 #include "solverFunctions.H"
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
     bool bugWorkAround(true);
 
     // Create controller, reads current solverDomain and triggers
-    plcController control(multiRun);
+    plcEmulator control(multiRun);
 
     // Main loop (superLoop)
     while (multiRun.run())

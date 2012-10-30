@@ -26,7 +26,7 @@ License
 
 #include "craftsTestUdfsTemplates.H"
 #include "addToRunTimeSelectionTable.H"
-#include "admFcModel.H"
+#include "craftsModel.H"
 #include "customUserDefines.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //

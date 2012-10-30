@@ -2,6 +2,9 @@ EXE_INC = \
     -ftemplate-depth-1400 \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/VectorN/lnInclude \
+    -I../../../../equationReader/src/equationReader/lnInclude \
+    -I../../../../reactionReader/src/reactionReader/lnInclude \
+    -I../craftsUdfsShared/lnInclude \
     -I../../craftsFoamLibrary/lnInclude
 
 
@@ -9,4 +12,7 @@ LIB_LIBS = \
     -lfiniteVolume \
     -lVectorN \
     -L$(FOAM_USER_LIBBIN) \
+    -lequationReader \
+    -lreactionReader \
+    -lcraftsUdfsShared \
     -lcraftsFoamLibrary

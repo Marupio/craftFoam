@@ -54,14 +54,14 @@ inline const word& craftsModel<matrixSize>::functionHooksName() const
 
 
 template<int matrixSize>
-inline autoPtr<admFcHooks<matrixSize> >& craftsModel<matrixSize>::hooks()
+inline autoPtr<craftsUdfs<matrixSize> >& craftsModel<matrixSize>::hooks()
 {
     return hooks_;
 }
 
 
 template<int matrixSize>
-inline const autoPtr<admFcHooks<matrixSize> >&
+inline const autoPtr<craftsUdfs<matrixSize> >&
     craftsModel<matrixSize>::hooks() const
 {
     return hooks_;
@@ -69,14 +69,14 @@ inline const autoPtr<admFcHooks<matrixSize> >&
 
 
 template<int matrixSize>
-inline const admFlow& craftsModel<matrixSize>::flow() const
+inline const craftsFlow& craftsModel<matrixSize>::flow() const
 {
     return flow_();
 }
 
 
 template<int matrixSize>
-inline admFlow& craftsModel<matrixSize>::flow()
+inline craftsFlow& craftsModel<matrixSize>::flow()
 {
     return flow_();
 }

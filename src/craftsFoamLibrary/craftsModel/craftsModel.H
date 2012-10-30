@@ -49,7 +49,8 @@ Author
 #define craftsModel_H
 
 #include "admReactionReader.H"
-#include "admFcHooks.H"
+#include "craftsFlow.H"
+#include "craftsUdfs.H"
 #include "Tuple2.H"
 #include "blockLduSolvers.H"
 
@@ -98,11 +99,11 @@ private:
             word functionHooksName_;
             
             //- Function hooks object
-            autoPtr<admFcHooks<matrixSize> > hooks_;
+            autoPtr<craftsUdfs<matrixSize> > hooks_;
 
 
         //- Flow model
-        autoPtr<admFlow> flow_;
+        autoPtr<craftsFlow> flow_;
 
             //- This flag is used with a subStepping flow solver.  Allows it to
             //  load from the temporary save states to continue the solution.
@@ -526,12 +527,12 @@ public:
             inline const word& functionHooksName() const;
             
             //- Function hooks object
-            inline autoPtr<admFcHooks<matrixSize> >& hooks();
-            inline const autoPtr<admFcHooks<matrixSize> >& hooks() const;
+            inline autoPtr<craftsUdfs<matrixSize> >& hooks();
+            inline const autoPtr<craftsUdfs<matrixSize> >& hooks() const;
 
             //- The flow model
-            inline const admFlow& flow() const;
-            inline admFlow& flow();
+            inline const craftsFlow& flow() const;
+            inline craftsFlow& flow();
 
 
             // Output flags
