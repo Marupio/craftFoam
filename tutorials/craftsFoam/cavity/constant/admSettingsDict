@@ -102,9 +102,9 @@ flowModel
     }
     adaptiveTimeSteppingTolerance
     {
-        phi     scalar;     // required for piso
-        p       scalar;     // required for piso
-        R       symmTensor; // required for piso
+        phi     scalar;     // required for piso, pimple
+        p       scalar;     // required for piso, pimple
+        R       symmTensor; // required for piso, pimple
     }
     minErrorScale
     {

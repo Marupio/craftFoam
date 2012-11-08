@@ -1,3 +1,4 @@
 craftsPisoFlow/craftsPisoFlow.C
+craftsPimpleFlow/craftsPimpleFlow.C
 
 LIB = $(FOAM_USER_LIBBIN)/libcraftsFlowModels

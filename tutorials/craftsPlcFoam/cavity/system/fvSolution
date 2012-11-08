@@ -53,6 +53,14 @@ solvers
         relTol          0;
     }
 
+    UFinal
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-15;
+        relTol          0;
+    }
+
     k
     {
         solver          PBiCG;
@@ -382,6 +390,16 @@ PISO
     nNonOrthogonalCorrectors 0;
     pRefCell        0;
     pRefValue       0.01;
+}
+
+PIMPLE
+{
+    solver              PBiCG;
+    nCorrectors         2;
+    nOuterCorrectors    2;
+    nNonOrthogonalCorrectors 0;
+    pRefCell            0;
+    pRefValue           0.01;
 }
 
 // ************************************************************************* //
