@@ -61,6 +61,18 @@ class admReactionReader;
 class craftsFlow
 {
 
+public:
+
+    //- Sub-stepping type enumeration
+    enum enumSubSteppingType
+    {
+        OFF,
+        FIXED_N_STEPS,
+        FIXED_TIMESTEP,
+        ADAPTIVE_TIMESTEP
+    };
+
+
 protected:
 
     //- Model references
@@ -79,38 +91,86 @@ protected:
     //- Coarse solution save spot
     scalarField coarseSaveSpotPhi_;
     scalarField coarseSaveSpotP_;
-    
-    //- Minimum error scaling values
-    scalar phiMinScale_;
-    scalar pMinScale_;
 
-    //- Error scaling values
-    scalar phiScale_;
-    scalar pScale_;
     
-    //- Convergence criteria
-    scalar phiConvergence_;
-    scalar pConvergence_;
-    
-    
+    // Adaptive timestepping (ATS) variables
+    //  Adaptive timestepping can work with:
+    //      - reactions only
+    //      - reactions and flow model
+    //  This section determines this behaviour.
+
+        //- True means ATS is enabled with the flow model
+        Switch atsEnableWithFlowModel_;
+        
+        //- List of variables to omit in ATS calculations
+        wordlist atsIgnore_;
+        
+        //- True when these variables are being ignored
+        bool atsIgnorePhi_;
+        bool atsIgnoreP_;
+        
+        //- ATS tolerance
+        scalar atsPhiTolerance_;
+        scalar atsPTolerance_;
+
+        //- ATS minimum error scales (user-defined)
+        scalar atsPhiMinScale_;
+        scalar atsPMinScale_;
+
+        //- ATS scales (actual values)
+        scalar atsPhiScale_;
+        scalar atsPScale_;
+
+
     // SubStepping
     //  When enabled, the flow model takes nSubSteps for each step of the
     //  reaction model.  Number of steps must always be even.
-    
-        //- True when subStepping is enabled
+
+        //- Sub-stepping behaviour type:
+        //      OFF
+        //      FIXED_N_STEPS
+        //      FIXED_TIMESTEP
+        //      ADAPTIVE_TIMESTEP
+        word subSteppingTypeWord_;
+        enumSubSteppingType subSteppingType_;
+
+        //- True when sub-stepping is enabled
         bool subStepping_;
+
+        //- Maximum flow timestep
+        //  Used with:
+        //      FIXED_TIMESTEP
+        //      ADAPTIVE_TIMESTEP
+        scalar ssMaxDeltaT_;
         
+        //- Minimum flow timestep
+        //  Used with:
+        //      FIXED_TIMESTEP
+        //      ADAPTIVE_TIMESTEP
+        scalar ssMinDeltaT_;
+    
         //- Maximum number of subSteps
-        label maxNSubSteps_;
+        //  Used with:
+        //      FIXED_TIMESTEP
+        //      ADAPTIVE_TIMESTEP
+        label ssMaxNSubSteps_;
         
         //- Minimum number of subSteps
-        label minNSubSteps_;
+        //  Used with:
+        //      FIXED_TIMESTEP
+        //      ADAPTIVE_TIMESTEP
+        label ssMinNSubSteps_;
 
         //- Initial number of subSteps
-        label initialNSubSteps_;
+        //  Used with:
+        //      FIXED_N_STEPS
+        //      FIXED_TIMESTEP
+        //      ADAPTIVE_TIMESTEP
+        label ssInitialNSubSteps_;
         
         //- Current number of subSteps
-        mutable label nSubSteps_;
+        //  Used with all subStepping types
+        mutable label ssCurrentNSubSteps_;
 
         //- Sub-stepping - active fluid dynamic data
         autoPtr<volVectorField> USubPtr_;
@@ -158,6 +218,9 @@ protected:
 private:
 
     // Private member functions
+    
+        //- Read the flowModel subDictionary of the settings dictionary
+        void readDict();
     
         //- Disallow default bitwise copy construct and assignment
         void operator=(const craftsFlow&);
@@ -253,22 +316,39 @@ public:
             inline const scalar& pConvergence() const;
 
 
-            // SubStepping
-                //- SubStepping enabled when true
-                inline const bool& subStepping() const;
-                
-                //- Maximum number of subSteps
-                inline const label& maxNSubSteps() const;
-                
-                //- Minimum number of subSteps
-                inline const label& minNSubSteps() const;
+            // Adaptive timestepping
 
-                //- Initial number of subSteps
-                inline const label& initialNSubSteps() const;
+                //- True means ATS is enabled with the flow model
+                inline bool atsEnableWithFlowModel() const;
+                
+                //- List of variables to omit in ATS calculations
+                inline const wordlist& atsIgnore() const;
+                
+                //- True when these variables are being ignored
+                inline bool atsIgnorePhi() const;
+                inline bool atsIgnoreP() const;
+                
+                //- ATS tolerance
+                inline const scalar& atsPhiTolerance() const;
+                inline const scalar& atsPTolerance() const;
+
+                //- ATS minimum error scales (user-defined)
+                inline const scalar& atsPhiMinScale() const;
+                inline const scalar& atsPMinScale() const;
+
+                //- ATS scales (actual values)
+                inline const scalar& atsPhiScale() const;
+                inline const scalar& atsPScale() const;
+
+
+            // SubStepping
+
+                //- Returns true if subStepping is enabled
+                inline const bool& subStepping() const;
                 
                 //- Current number of subSteps
                 inline const label& nSubSteps() const;
-                
+
                 //- Set a new number of subSteps, applies max and min, even
                 //  only, and returns the actual value set.
                 //  const because ugly

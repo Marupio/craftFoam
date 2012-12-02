@@ -16,25 +16,12 @@ FoamFile
 
 chainRuleSearchDepth        3;
 functionHooks               sh2IonsGas;
-flowModel                   steadyState;
 flowModel
 {
     type    steadyState;
     subStepping
     {
         useSubStepping      no;
-    }
-    adaptiveTimeSteppingTolerance
-    {
-        phi     1e-3;
-        p       1e-3;
-        R       (1e-3 1e-3 1e-3 1e-3 1e-3 1e-3);
-    }
-    minErrorScale
-    {
-        phi     1e-6;
-        //p       1e-6;
-        R       (1e-6 1e-6 1e-6 1e-6 1e-6 1e-6);
     }
 }
 outerLoopMaxIterations      20;
@@ -88,6 +75,27 @@ outputFlags
 }
 
 /*
+
+Now you need to add the new adaptiveTimestepping sub dictionary, and carry
+through the new variable names.
+
+So you are working on adding different behaviours to subStepping, as described
+below.  There are three types of adaptive timestepping (ATS)... with reactions,
+which is the "base" ATS.  Then the flowModel, i.e. "do we include flow 
+variables when calculating ATS?"  Then, substepping that alters its behaviour
+based on the ATS... that is: the flow model needs a smaller timestep, therefore
+we increase the number of sub-steps.  I need to clarify this relationship.
+
+&&&Now you are adding it through derived flow models.
+
+    | | | | | | | | | |-|-|- - - - - - - - - - - - - - - - 
+| | | SUB STEPPING  | |-|-|- - - ADAPTIVE TIMESTEPPING - - - -
+| | | | | | | | | | | |-|-|- - - - - - - - - - - - - - - - - -
+    | | | | | $ $ $ $ $-$-S-S-S-S-S-S-S- - - - - - - - - -
+            S S ADAPTIVE TIMESTEPPING S S
+              S S WITH SUB STEPPING S S
+                S S S S S S S S S S S
+
 chainRuleSearchDepth        integer;
 functionHooks               functionHooksName;
 flowModel
@@ -95,22 +103,37 @@ flowModel
     type        flowModelName;
     subStepping
     {
-        useSubStepping      yes/no;
-        maxNSteps           label;  // must be even, default FOAM_LABEL_MAX
-        minNSteps           label;  // must be even, default 2
-        initialNSteps       label;  // must be even, default 2
+        type        off;
+        type        fixedNSteps;
+            nSteps          label;  // must be even
+        type        fixedTimestep;
+            maxDeltaT       scalar; // default VGREAT
+            minDeltaT       scalar; // default VSMALL
+            maxNSteps       label;  // must be even, default FOAM_LABEL_MAX
+            minNSteps       label;  // must be even, default 2
+        type        adaptiveTimestep;
+            maxDeltaT       scalar; // default VGREAT
+            minDeltaT       scalar; // default VSMALL
+            maxNSteps       label;  // must be even, default FOAM_LABEL_MAX
+            minNSteps       label;  // must be even, default 2
+            initialNSteps   label;  // must be even, default 2
     }
-    adaptiveTimeSteppingTolerance
+    adaptiveTimestepping
     {
-        phi     scalar;     // required for piso, pimple
-        p       scalar;     // required for piso, pimple
-        R       symmTensor; // required for piso, pimple
-    }
-    minErrorScale
-    {
-        phi     scalar;     // default SMALL
-        p       scalar;     // default SMALL
-        R       symmTensor; // default SMALL symmtensor
+        enableWithFlowModel     yes/no; // must be yes if req'd by subStepping
+        ignore ( phi p R );     // include fields to ignore
+        tolerance
+        {
+            phi     scalar;     // if required
+            p       scalar;     // if required
+            R       symmTensor; // if required
+        }
+        minErrorScale
+        {
+            phi     scalar;     // default SMALL
+            p       scalar;     // default SMALL
+            R       symmTensor; // default SMALL symmtensor
+        }
     }
 }
 outerLoopMaxIterations      integer;

@@ -121,33 +121,82 @@ inline const scalar& craftsFlow::pConvergence() const
 }
 
 
+inline bool craftsFlow::atsEnableWithFlowModel() const
+{
+    return atsEnabledWithFlowModel_;
+}
+
+
+inline const wordlist& craftsFlow::atsIgnore() const
+{
+    return atsIgnore_;
+}
+
+
+inline bool craftsFlow::atsIgnorePhi() const
+{
+    return atsIgnorePhi_;
+}
+
+
+inline bool craftsFlow::atsIgnoreP() const
+{
+    return atsIgnoreP_;
+}
+
+
+inline const scalar& craftsFlow::atsPhiTolerance() const
+{
+    return atsPhiTolerance_;
+}
+
+
+inline const scalar& craftsFlow::atsPTolerance() const
+{
+    return atsPTolerance_;
+}
+
+
+inline const scalar& craftsFlow::atsPhiMinScale() const
+{
+    return atsPhiMinScale_;
+}
+
+
+inline const scalar& craftsFlow::atsPMinScale() const
+{
+    return atsPMinScale_;
+}
+
+
+inline const scalar& craftsFlow::atsPhiScale() const
+{
+    return atsPhiScale_;
+}
+
+
+inline const scalar& craftsFlow::atsPScale() const
+{
+    return atsPScale_;
+}
+
+
 inline const bool& craftsFlow::subStepping() const
 {
     return subStepping_;
 }
 
 
-inline const label& craftsFlow::maxNSubSteps() const
+inline const craftsFlow::enumSubSteppingType&
+    craftsFlow::subSteppingType() const
 {
-    return maxNSubSteps_;
-}
-
-
-inline const label& craftsFlow::minNSubSteps() const
-{
-    return minNSubSteps_;
-}
-
-
-inline const label& craftsFlow::initialNSubSteps() const
-{
-    return initialNSubSteps_;
+    return subSteppingType_;
 }
 
 
 inline const label& craftsFlow::nSubSteps() const
 {
-    return nSubSteps_;
+    return ssCurrentNSubSteps_;
 }
 
 

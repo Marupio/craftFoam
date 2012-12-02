@@ -37,6 +37,160 @@ namespace Foam
 }
 
 
+// * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
+
+
+void Foam::craftsFlow::readDict()
+{
+    // Set subStepping type based on the word
+    if (subSteppingTypeWord_ == "off")
+    else if (subSteppingTypeWord_ == "fixedNSteps")
+    {
+        subSteppingType_ = FIXED_N_STEPS;
+    }
+    else if (subSteppingTypeWord_ == "fixedTimestep")
+    {
+        subSteppingType_ = FIXED_TIMESTEP;
+    }
+    else if (subSteppingTypeWord_ == "adaptiveTimestep")
+    {
+        subSteppingType_ = ADAPTIVE_TIMESTEP;
+        if (!atsEnableWithFlowModel_)
+        {
+            FatalIOErrorIn("craftsFlow::readDict", settingsDict_)
+                << "enableWithFlowModel must be 'yes' when subStepping type "
+                << "is 'adaptiveTimestep"
+                << exit(FatalIOError);
+        }
+    }
+    else
+    {
+        FatalIOErrorIn
+        (
+            "craftsFlow::readDict",
+            settingsDict_.subDict("subStepping")
+        )
+            << subSteppingTypeWord_ << " unrecognized flow model subStepping "
+            << "behaviour.  Expecting: 'off', 'fixedNSteps', 'fixedTimeStep', "
+            << "'adaptiveTimeStep'."
+            << exit(FatalIOError);
+    }
+
+    // Adaptive timestepping tolerance
+    if (settingsDict_.subDict("adaptiveTimestepping").found("tolerance"))
+    {
+        const dictionary& toleranceDict
+        (
+            settingsDict_.subDict("adaptiveTimestepping").subDict("tolerance")
+        );
+        if (toleranceDict.found("phi")
+        )
+        {
+            atsPhiTolerance_ = readScalar(toleranceDict.lookup("phi"));
+        }
+        if (toleranceDict.found("p"))
+        {
+            atsPTolerance_ = readScalar(toleranceDict.lookup("p"));
+        }
+    }
+
+    // Adaptive timestepping minimum error scale
+    if (settingsDict_.subDict("adaptiveTimestepping").found("minErrorScale"))
+    {
+        const dictionary& minErrorDict
+        (
+            settingsDict_
+                .subDict("adaptiveTimestepping")
+                .subDict("minErrorScale")
+        );
+        if (minErrorDict.found("phi"))
+        {
+            atsPhiMinScale_ = readScalar(minErrorDict.lookup("phi"));
+        }
+        if (minErrorDict.found("p"))
+        {
+            atsPMinScale_ = readScalar(minErrorDict.lookup("p"));
+        }
+    }
+
+    // Search for ignored fields
+    forAll(atsIgnore_, i)
+    {
+        if (atsIgnore_[i] == "phi")
+        {
+            atsIgnorePhi_ = true;
+        }
+        if (atsIgnore_[i] == "p")
+        {
+            atsIgnoreP_ = true;
+        }
+    }
+
+    // SubStepping error checking
+    if (ssMaxDeltaT_ <= ssMinDeltaT_)
+    {
+        FatalIOErrorIn
+        (
+            "craftsFlow::readDict",
+            settingsDict_.subDict("subStepping")
+        )
+            << "maxDeltaT (" << ssMaxDeltaT_ << ") must be greater than "
+            << "minDeltaT (" << ssMinDeltaT_ << ")"
+            << exit(FatalIOError);
+    }
+    if (ssInitialNSubSteps_ % 2)
+    {
+        // value is odd
+        WarningIn("craftsFlow::readDict")
+            << "initialNSteps must be even.  Using " << ssInitialNSubSteps_ + 1
+            << " in place of " << ssInitialNSubSteps_ << endl;
+        
+        ssInitialNSubSteps_++;
+        ssCurrentNSubSteps_ = ssInitialNSubSteps_;
+    }
+    if ((ssMaxNSubSteps_ < 2) || (ssMaxNSubSteps_ % 2))
+    {
+        FatalIOErrorIn
+        (
+            "craftsFlow::readDict",
+            settingsDict_.subDict("subStepping")
+        )
+            << "maxNSteps must be an even integer greater than 1."
+            << exit(FatalIOError);
+    }
+    if ((ssMinNSubSteps_ < 2) || (ssMinNSubSteps_ % 2))
+    {
+        FatalIOErrorIn
+        (
+            "craftsFlow::readDict",
+            settingsDict_.subDict("subStepping")
+        )
+            << "minNSteps must be an even integer greater than 1."
+            << exit(FatalIOError);
+    }
+    if (subStepping_)
+    {
+        IOWarningIn("craftsFlow::readDict", settingsDict_)
+            << "subStepping is enabled. Some boundary conditions look for "
+            << "'U' or 'phi' by default.  Direct flow-related boundary "
+            << "conditions to 'USub' or 'phiSub', and reaction-related "
+            << "boundary conditions to 'UGlobal' or 'phiGlobal' instead by "
+            << "adding 'U' or 'phi' keywords in their dictionaries."
+            << endl;
+    }
+    else
+    {
+        IOWarningIn("craftsFlow::readDict", settingsDict_)
+            << "subStepping is disabled. Some boundary conditions look for "
+            << "'U' or 'phi' by default.  Direct them all to 'UGlobal' or "
+            << "'phiGlobal' instead by adding 'U' or 'phi' keywords in their "
+            << "dictionaries."
+            << endl;
+    }
+
+}
+
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::craftsFlow::craftsFlow
@@ -60,43 +214,71 @@ Foam::craftsFlow::craftsFlow
     ),
     coarseSaveSpotPhi_(phiGlobal_.internalField().size(), 0.0),
     coarseSaveSpotP_(pGlobal_.internalField().size(), 0.0),
-    
-    phiMinScale_(SMALL),
-    pMinScale_(SMALL),
-    
-    phiScale_(VSMALL),
-    pScale_(VSMALL),
-    
-    phiConvergence_(-VGREAT),
-    pConvergence_(-VGREAT),
 
-    subStepping_
+    atsEnableWithFlowModel_
     (
-        Switch(settingsDict_.subDict("subStepping").lookup("useSubStepping"))
+      settingsDict_.subDict("adaptiveTimestepping").lookup("enableWithFlowModel")
     ),
+
+    atsIgnore_
+    (
+        settingsDict_.subDict("adaptiveTimestepping").found("ignore")
+      ? settingsDict_.subDict("adaptiveTimestepping").lookup("ignore")
+      : wordlist(0)
+    ),
+
+    atsIgnorePhi_(false),
+    atsIgnoreP_(false),
+
+    atsPhiTolerance_(-VGREAT),
+    atsPTolerance_(-VGREAT),
+
+    atsPhiMinScale_(SMALL),
+    atsPMinScale_(SMALL),
+
+    atsPhiScale_(VSMALL),
+    atsPScale_(VSMALL),
     
-    maxNSubSteps_
+    subSteppingTypeWord_
+    (
+        settingsDict_.subDict("subStepping").lookup("type")
+    ),
+    subSteppingType_(0),
+    subStepping_(subSteppingTypeWord != "off"),
+    ssMaxDeltaT_
+    (
+        settingsDict_.subDict("subStepping").found("maxDeltaT")
+      ? readScalar(settingsDict_.subDict("subStepping").lookup("maxDeltaT"))
+      : VGREAT
+    ),
+    ssMinDeltaT_
+    (
+        settingsDict_.subDict("subStepping").found("minDeltaT")
+      ? readLabel(settingsDict_.subDict("subStepping").lookup("minDeltaT"))
+      : scalar(0)
+    ),
+    ssMaxNSubSteps_
     (
         settingsDict_.subDict("subStepping").found("maxNSteps")
       ? readLabel(settingsDict_.subDict("subStepping").lookup("maxNSteps"))
       : FOAM_LABEL_MAX
     ),
-    minNSubSteps_
+    ssMinNSubSteps_
     (
         settingsDict_.subDict("subStepping").found("minNSteps")
       ? readLabel(settingsDict_.subDict("subStepping").lookup("minNSteps"))
       : label(2)
     ),
-    initialNSubSteps_
+    ssInitialNSubSteps_
     (
         settingsDict_.subDict("subStepping").found("initialNSteps")
       ? readLabel(settingsDict_.subDict("subStepping").lookup("initialNSteps"))
       : label(2)
     ),
-    nSubSteps_
+    ssCurrentNSubSteps_
     (
         subStepping_
-      ? initialNSubSteps_
+      ? ssInitialNSubSteps_
       : label(1)
     ),
 
@@ -201,96 +383,7 @@ Foam::craftsFlow::craftsFlow
       : true
     )
 {
-    if (settingsDict_.found("adaptiveTimeSteppingTolerance"))
-    {
-        const dictionary& atsDict
-        (
-            settingsDict_.subDict("adaptiveTimeSteppingTolerance")
-        );
-        if (atsDict.found("phi"))
-        {
-            phiConvergence_ = readScalar(atsDict.lookup("phi"));
-            if (phiConvergence_ < 0)
-            {
-                FatalIOErrorIn("craftsFlow::craftsFlow", atsDict)
-                    << "phi timestepping tolerance cannot be negative"
-                    << exit(FatalIOError);
-            }
-        }
-        if (atsDict.found("p"))
-        {
-            pConvergence_ = readScalar(atsDict.lookup("p"));
-            if (pConvergence_ < 0)
-            {
-                FatalIOErrorIn("craftsFlow::craftsFlow", atsDict)
-                    << "p convergence cannot be negative"
-                    << exit(FatalIOError);
-            }
-        }
-    }
-    if (settingsDict_.found("minErrorScale"))
-    {
-        const dictionary& scaleDict(settingsDict_.subDict("minErrorScale"));
-        if (scaleDict.found("phi"))
-        {
-            phiMinScale_ = readScalar(scaleDict.lookup("phi"));
-        }
-        if (scaleDict.found("p"))
-        {
-            pMinScale_ = readScalar(scaleDict.lookup("p"));
-        }
-    }
-    
-    // SubStepping error checking
-    if (initialNSubSteps_ % 2)
-    {
-        // value is odd
-        WarningIn("craftsFlow::craftsFlow")
-            << "initialNSteps must be even.  Using " << initialNSubSteps_ + 1
-            << " in place of " << initialNSubSteps_ << endl;
-        
-        initialNSubSteps_++;
-        nSubSteps_ = initialNSubSteps_;
-    }
-    if ((maxNSubSteps_ < 2) || (maxNSubSteps_ % 2))
-    {
-        FatalIOErrorIn
-        (
-            "craftsFlow::craftsFlow",
-            settingsDict_.subDict("subStepping")
-        )
-            << "maxNSteps must be an even integer greater than 1."
-            << exit(FatalIOError);
-    }
-    if ((minNSubSteps_ < 2) || (minNSubSteps_ % 2))
-    {
-        FatalIOErrorIn
-        (
-            "craftsFlow::craftsFlow",
-            settingsDict_.subDict("subStepping")
-        )
-            << "minNSteps must be an even integer greater than 1."
-            << exit(FatalIOError);
-    }
-    if (subStepping_)
-    {
-        IOWarningIn("craftsFlow::craftsFlow", settingsDict_)
-            << "subStepping is enabled. Some boundary conditions look for "
-            << "'U' or 'phi' by default.  Direct flow-related boundary "
-            << "conditions to 'USub' or 'phiSub', and reaction-related "
-            << "boundary conditions to 'UGlobal' or 'phiGlobal' instead by "
-            << "adding 'U' or 'phi' keywords in their dictionaries."
-            << endl;
-    }
-    else
-    {
-        IOWarningIn("craftsFlow::craftsFlow", settingsDict_)
-            << "subStepping is disabled. Some boundary conditions look for "
-            << "'U' or 'phi' by default.  Direct them all to 'UGlobal' or "
-            << "'phiGlobal' instead by adding 'U' or 'phi' keywords in their "
-            << "dictionaries."
-            << endl;
-    }
+    readDict();
 }
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
@@ -304,10 +397,10 @@ Foam::label Foam::craftsFlow::setNSubSteps(label newNSubSteps) const
     }
     
     // Apply limits
-    nSubSteps_ = max(minNSubSteps_, newNSubSteps);
-    nSubSteps_ = min(maxNSubSteps_, nSubSteps_);
+    ssCurrentNSubSteps_ = max(ssMinNSubSteps_, newNSubSteps);
+    ssCurrentNSubSteps_ = min(ssMaxNSubSteps_, ssCurrentNSubSteps_);
 
-    return nSubSteps_;
+    return ssCurrentNSubSteps_;
 }
 
 
@@ -359,22 +452,51 @@ void Foam::craftsFlow::retagFlowSolution()
 
 void Foam::craftsFlow::calculateScales()
 {
-    if (subStepping_)
+    if (atsEnableWithFlowModel_)
     {
-        phiScale_ = max
-        (
-            model_.calculateRms(fineSaveSpotPhiPtr_()), phiMinScale_
-        );
-        pScale_ = max(model_.calculateRms(fineSaveSpotPPtr_()), pMinScale_);
+        if (subStepping_)
+        {
+            if (!atsIgnorePhi_)
+            {
+                atsPhiScale_ = max
+                (
+                    model_.calculateRms(fineSaveSpotPhiPtr_()), atsPhiMinScale_
+                );
+            }
+            if (!atsIgnoreP_)
+            {
+                atsPScale_ = max
+                (
+                    model_.calculateRms(fineSaveSpotPPtr_()), atsPMinScale_
+                );
+            }
+        }
+        else
+        {
+            if (!atsIgnorePhi_)
+            {
+                atsPhiScale_ = max
+                (
+                    model_.calculateRms(phiActive_), atsPhiMinScale_
+                );
+            }
+            if (!atsIgnoreP_)
+            {
+                atsPScale_ = max
+                (
+                    model_.calculateRms(pActive_), atsPMinScale_
+                );
+            }
+        }
+        if (outputFlowErrorScales_)
+        {
+            Info << "flowErrorScales: U = " << atsPhiScale_ << ", p = "
+                << atsPScale_ << endl;
+        }
     }
-    else
+    else if (outputFlowErrorScales_)
     {
-        phiScale_ = max(model_.calculateRms(phiActive_), phiMinScale_);
-        pScale_ = max(model_.calculateRms(pActive_), pMinScale_);
-    }
-    if (outputFlowErrorScales_)
-    {
-        Info << "flowErrorScales: U = " << phiScale_ << ", p = " << pScale_
+        Info << "flowErrorScales: n/a (flow adaptiveTimestepping disabled)"
             << endl;
     }
 }
@@ -385,58 +507,76 @@ Foam::scalar Foam::craftsFlow::testConvergence() const
     scalar returnMe(-VGREAT);
     scalar phiTest(-VGREAT);
     scalar pTest(-VGREAT);
-    if (subStepping_)
-    {
-//Info << "pCoarse = [" << coarseSaveSpotP_ << "]" << endl;
-//Info << "pFine = [" << fineSaveSpotPPtr_() << "]" << endl;
-        phiTest = model_.calculateRmsError
-        (
-            fineSaveSpotPhiPtr_(),
-            coarseSaveSpotPhi_,
-            mesh_.magSf().field(),
-            phiScale_
-        ) - phiConvergence_;
-        pTest = model_.calculateRmsError
-        (
-            fineSaveSpotPPtr_(),
-            coarseSaveSpotP_,
-            mesh_.V().field(),
-            pScale_
-        ) - pConvergence_;
-    }
-    else
-    {
-        phiTest = model_.calculateRmsError
-        (
-            phiActive_.internalField(),
-            coarseSaveSpotPhi_,
-            mesh_.magSf().field(),
-            phiScale_
-        ) - phiConvergence_;
-        pTest = model_.calculateRmsError
-        (
-            pActive_.internalField(),
-            coarseSaveSpotP_,
-            mesh_.V().field(),
-            pScale_
-        ) - pConvergence_;
-    }
-    
-    returnMe = max(phiTest, pTest);
 
-    if (outputFlowResiduals_)
+    if (atsEnableWithFlowModel_)
     {
-        Info << "flowResiduals: U = " << phiTest << ", p = " << pTest;
-        if (returnMe > 0)
+        if (subStepping_)
         {
-            Info << " (fail)" << endl;
+            if (!atsIgnorePhi_)
+            {
+                phiTest = model_.calculateRmsError
+                (
+                    fineSaveSpotPhiPtr_(),
+                    coarseSaveSpotPhi_,
+                    mesh_.magSf().field(),
+                    atsPhiScale_
+                ) - atsPhiTolerance_;
+            }
+            if (!atsIgnoreP_)
+            {
+                pTest = model_.calculateRmsError
+                (
+                    fineSaveSpotPPtr_(),
+                    coarseSaveSpotP_,
+                    mesh_.V().field(),
+                    atsPScale_
+                ) - atsPTolerance_;
+            }
         }
         else
         {
-            Info << " (pass)" << endl;
+            if (!atsIgnorePhi_)
+            {
+                phiTest = model_.calculateRmsError
+                (
+                    phiActive_.internalField(),
+                    coarseSaveSpotPhi_,
+                    mesh_.magSf().field(),
+                    atsPhiScale_
+                ) - atsPhiTolerance_;
+            }
+            if (!atsIgnoreP_)
+            {
+                pTest = model_.calculateRmsError
+                (
+                    pActive_.internalField(),
+                    coarseSaveSpotP_,
+                    mesh_.V().field(),
+                    atsPScale_
+                ) - atsPTolerance_;
+            }
+        }
+        
+        returnMe = max(phiTest, pTest);
+
+        if (outputFlowResiduals_)
+        {
+            Info << "flowResiduals: U = " << phiTest << ", p = " << pTest;
+            if (returnMe > 0)
+            {
+                Info << " (fail)" << endl;
+            }
+            else
+            {
+                Info << " (pass)" << endl;
+            }
         }
     }
-    
+    else if (outputFlowResiduals_)
+    {
+        Info << "flowResiduals: n/a (flow adaptiveTimestepping disabled)"
+            << endl;
+    }
     return returnMe;
 }
 
@@ -444,46 +584,58 @@ Foam::scalar Foam::craftsFlow::testConvergence() const
 Foam::scalar Foam::craftsFlow::calculateNextBestDeltaT() const
 {
     // Don't have to worry about subStepping here
-    scalar dtPhi
-    (
-        admReactionReader::calculateNextDeltaT
-        (
-            coarseSaveSpotPhi_,
-            phiActive_.internalField(),
-            phiConvergence_,
-            mesh_.magSf().field(),
-            runTime_.deltaT().value(),
-            phiScale_
-        )
-    );
-
-    scalar dtP
-    (
-        admReactionReader::calculateNextDeltaT
-        (
-            coarseSaveSpotP_,
-            pActive_.internalField(),
-            pConvergence_,
-            mesh_.V().field(),
-            runTime_.deltaT().value(),
-            pScale_
-        )
-    );
-    
-    if (outputFlowTimestepEstimate_)
+    if (atsEnableWithFlowModel_)
     {
-        if (dtPhi <= dtP)
+        scalar dtPhi(VGREAT);
+        scalar dtP(VGREAT);
+
+        if (!atsIgnorePhi_)
         {
-            Info << "flowTimestepEstimate: U dtEst = " << dtPhi
-                << " (bottleneck), p dtEst = " << dtP << endl;
+            dtPhi = admReactionReader::calculateNextDeltaT
+            (
+                coarseSaveSpotPhi_,
+                phiActive_.internalField(),
+                atsPhiTolerance_,
+                mesh_.magSf().field(),
+                runTime_.deltaT().value(),
+                atsPhiScale_
+            );
         }
-        else
+        
+        if (!atsIgnoreP_)
         {
-            Info << "flowTimestepEstimate: U dtEst = " << dtPhi
-                << ", p dtEst = " << dtP << " (bottleneck)" << endl;
+            dtP = admReactionReader::calculateNextDeltaT
+            (
+                coarseSaveSpotP_,
+                pActive_.internalField(),
+                atsPTolerance_,
+                mesh_.V().field(),
+                runTime_.deltaT().value(),
+                atsPScale_
+            );
         }
+        
+        if (outputFlowTimestepEstimate_)
+        {
+            if (dtPhi <= dtP)
+            {
+                Info << "flowTimestepEstimate: U dtEst = " << dtPhi
+                    << " (bottleneck), p dtEst = " << dtP << endl;
+            }
+            else
+            {
+                Info << "flowTimestepEstimate: U dtEst = " << dtPhi
+                    << ", p dtEst = " << dtP << " (bottleneck)" << endl;
+            }
+        }
+        return min(dtPhi, dtP);
     }
-    return min(dtPhi, dtP);
+    else if (outputFlowTimestepEstimate_)
+    {
+        Info << "flowTimestepEstimate: n/a (flow adaptive timestepping "
+            << "disabled)" << endl;
+    }
+    return VGREAT;
 }
 
 
