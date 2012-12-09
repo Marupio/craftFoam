@@ -76,9 +76,6 @@ outputFlags
 
 /*
 
-Now you need to add the new adaptiveTimestepping sub dictionary, and carry
-through the new variable names.
-
 So you are working on adding different behaviours to subStepping, as described
 below.  There are three types of adaptive timestepping (ATS)... with reactions,
 which is the "base" ATS.  Then the flowModel, i.e. "do we include flow 
@@ -86,8 +83,9 @@ variables when calculating ATS?"  Then, substepping that alters its behaviour
 based on the ATS... that is: the flow model needs a smaller timestep, therefore
 we increase the number of sub-steps.  I need to clarify this relationship.
 
-&&&Now you are adding it through derived flow models.
-
+&&&Now you are adding it through derived flow models. 
+Need to change the minErrorScale, convergence variables, add an ignored, change
+where they lookup, and change their related function behaviours.
     | | | | | | | | | |-|-|- - - - - - - - - - - - - - - - 
 | | | SUB STEPPING  | |-|-|- - - ADAPTIVE TIMESTEPPING - - - -
 | | | | | | | | | | | |-|-|- - - - - - - - - - - - - - - - - -

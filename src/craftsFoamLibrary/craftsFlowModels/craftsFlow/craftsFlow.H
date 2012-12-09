@@ -103,7 +103,7 @@ protected:
         Switch atsEnableWithFlowModel_;
         
         //- List of variables to omit in ATS calculations
-        wordlist atsIgnore_;
+        wordList atsIgnore_;
         
         //- True when these variables are being ignored
         bool atsIgnorePhi_;
@@ -303,18 +303,6 @@ public:
             inline const volScalarField& p() const;
             inline volScalarField& p();
 
-            //- Error scaling factors
-            inline const scalar& phiScale() const;
-            inline const scalar& pScale() const;
-
-            //- Minimum error scaling factors
-            inline const scalar& phiMinScale() const;
-            inline const scalar& pMinScale() const;
-
-            //- Convergence criteria
-            inline const scalar& phiConvergence() const;
-            inline const scalar& pConvergence() const;
-
 
             // Adaptive timestepping
 
@@ -322,7 +310,7 @@ public:
                 inline bool atsEnableWithFlowModel() const;
                 
                 //- List of variables to omit in ATS calculations
-                inline const wordlist& atsIgnore() const;
+                inline const wordList& atsIgnore() const;
                 
                 //- True when these variables are being ignored
                 inline bool atsIgnorePhi() const;
@@ -342,6 +330,13 @@ public:
 
 
             // SubStepping
+
+                //- Returns user-selected behaviour of subStepping:
+                //      OFF
+                //      FIXED_N_STEPS
+                //      FIXED_TIMESTEP
+                //      ADAPTIVE_TIMESTEP
+                inline const enumSubSteppingType& subSteppingType() const;
 
                 //- Returns true if subStepping is enabled
                 inline const bool& subStepping() const;

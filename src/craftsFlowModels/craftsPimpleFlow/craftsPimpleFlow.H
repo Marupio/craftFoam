@@ -110,23 +110,29 @@ private:
     // Save spots
     
         //- Turbulence model
-        symmTensorField coarseSaveSpotR_;
+        autoPtr<symmTensorField> coarseSaveSpotRPtr_;
         autoPtr<symmTensorField> fineSaveSpotRPtr_;
 
 
-    // Convergence data
+    // Adaptive timestepping variables
     
+        //- True when these variables are being ignored
+        bool atsIgnoreR_;
+
         //- Minimum error scaling factor
-        symmTensor RMinScale_;
+        symmTensor atsRMinScale_;
 
         //- Turbulence error scaling data
-        symmTensor RScale_;
+        symmTensor atsRScale_;
         
         //- Convergence criterion
-        symmTensor RConvergence_;
+        symmTensor atsRTolerance_;
 
     
     // Private member functions
+    
+        //- Read settings in the dictionary
+        void readDict();
     
         //- Solve the U equation
         void solveUEquation();

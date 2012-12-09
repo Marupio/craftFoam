@@ -85,49 +85,13 @@ inline volScalarField& craftsFlow::p()
 }
 
 
-inline const scalar& craftsFlow::phiScale() const
-{
-    return phiScale_;
-}
-
-
-inline const scalar& craftsFlow::pScale() const
-{
-    return pScale_;
-}
-
-
-inline const scalar& craftsFlow::phiMinScale() const
-{
-    return phiMinScale_;
-}
-
-
-inline const scalar& craftsFlow::pMinScale() const
-{
-    return pMinScale_;
-}
-
-
-inline const scalar& craftsFlow::phiConvergence() const
-{
-    return phiConvergence_;
-}
-
-
-inline const scalar& craftsFlow::pConvergence() const
-{
-    return pConvergence_;
-}
-
-
 inline bool craftsFlow::atsEnableWithFlowModel() const
 {
-    return atsEnabledWithFlowModel_;
+    return atsEnableWithFlowModel_;
 }
 
 
-inline const wordlist& craftsFlow::atsIgnore() const
+inline const wordList& craftsFlow::atsIgnore() const
 {
     return atsIgnore_;
 }

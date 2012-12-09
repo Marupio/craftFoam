@@ -44,6 +44,9 @@ void Foam::craftsFlow::readDict()
 {
     // Set subStepping type based on the word
     if (subSteppingTypeWord_ == "off")
+    {
+        subSteppingType_ = OFF;
+    }
     else if (subSteppingTypeWord_ == "fixedNSteps")
     {
         subSteppingType_ = FIXED_N_STEPS;
@@ -224,7 +227,7 @@ Foam::craftsFlow::craftsFlow
     (
         settingsDict_.subDict("adaptiveTimestepping").found("ignore")
       ? settingsDict_.subDict("adaptiveTimestepping").lookup("ignore")
-      : wordlist(0)
+      : wordList(0)
     ),
 
     atsIgnorePhi_(false),
@@ -243,8 +246,8 @@ Foam::craftsFlow::craftsFlow
     (
         settingsDict_.subDict("subStepping").lookup("type")
     ),
-    subSteppingType_(0),
-    subStepping_(subSteppingTypeWord != "off"),
+    subSteppingType_(OFF),
+    subStepping_(subSteppingTypeWord_ != "off"),
     ssMaxDeltaT_
     (
         settingsDict_.subDict("subStepping").found("maxDeltaT")
@@ -424,7 +427,7 @@ void Foam::craftsFlow::storeFineSolution()
     {
         FatalErrorIn("craftsFlow::storeFineSolution")
             << "This function is invalid when sub-stepping is disabled."
-            << endl;
+            << abort(FatalError);
     }
     fineSaveSpotPhiPtr_() = phiActive_.internalField();
     fineSaveSpotPPtr_() = pActive_.internalField();

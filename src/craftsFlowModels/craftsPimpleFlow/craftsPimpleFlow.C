@@ -44,6 +44,50 @@ namespace Foam
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
+void Foam::craftsPimpleFlow::readDict()
+{
+    if (settingsDict_.found("adaptiveTimestepping"))
+    {
+        const dictionary& atsDict
+        (
+            settingsDict_.subDict("adaptiveTimestepping")
+        );
+        if (atsDict.found("tolerance"))
+        {
+            const dictionary& tolDict
+            (
+                atsDict.subDict("tolerance")
+            );
+            if (tolDict.found("R"))
+            {
+                atsRTolerance_ = symmTensor(tolDict.lookup("R"));
+            }
+        }
+        if (atsDict.found("minErrorScale"))
+        {
+            const dictionary& mesDict
+            (
+                atsDict.subDict("minErrorScale")
+            );
+            if (mesDict.found("R"))
+            {
+                atsRMinScale_ = symmTensor(mesDict.lookup("R"));
+            }
+        }
+    }
+    if (settingsDict_.found("minErrorScale"))
+    {
+        if (settingsDict_.subDict("minErrorScale").found("R"))
+        {
+            atsRMinScale_ = symmTensor
+            (
+                settingsDict_.subDict("minErrorScale").lookup("R")
+            );
+        }
+    }
+}
+
+
 void Foam::craftsPimpleFlow::solveUEquation()
 {
     // Shorthand
@@ -309,10 +353,7 @@ Foam::craftsPimpleFlow::craftsPimpleFlow
       : zeroSource_
     ),
 
-    coarseSaveSpotR_
-    (
-        mesh_.nCells(), pTraits<symmTensor>::zero
-    ),
+    coarseSaveSpotRPtr_(0),
     fineSaveSpotRPtr_
     (
         subStepping_
@@ -320,24 +361,24 @@ Foam::craftsPimpleFlow::craftsPimpleFlow
       : 0
     ),
 
-    RMinScale_
+    atsIgnoreR_(false),
+    atsRMinScale_
     (
         SMALL, SMALL, SMALL,
                SMALL, SMALL,
                       SMALL
     ),
-    RScale_
+    atsRScale_
     (
         SMALL, SMALL, SMALL,
                SMALL, SMALL,
                       SMALL
     ),
-    RConvergence_
+    atsRTolerance_
     (
-        symmTensor
-        (
-            settingsDict_.subDict("adaptiveTimeSteppingTolerance").lookup("R")
-        )
+        SMALL, SMALL, SMALL,
+               SMALL, SMALL,
+                      SMALL
     )
 {
     // Override lduMatrix::debug
@@ -350,24 +391,21 @@ Foam::craftsPimpleFlow::craftsPimpleFlow
         lduMatrix::debug = 0;
     }
 
-    // Check convergence and error scaling
-    if (phiConvergence_ < 0)
+    // Search for ignored fields
+    forAll(atsIgnore_, i)
     {
-        FatalErrorIn("craftsPimpleFlow::craftsPimpleFlow")
-            << "Positive value expected for phi adaptive timestepping "
-            << "tolerance. Set in admSettingsDict, flowModel subDictionary, "
-            << "adaptiveTimesteppingTolerance subdictionary, keyword phi"
-            << abort(FatalError);
-    }
-    if (settingsDict_.found("minErrorScale"))
-    {
-        if (settingsDict_.subDict("minErrorScale").found("R"))
+        if (atsIgnore_[i] == "R")
         {
-            RMinScale_ = symmTensor
-            (
-                settingsDict_.subDict("minErrorScale").lookup("R")
-            );
+            atsIgnoreR_ = true;
         }
+    }
+
+    if (!atsIgnoreR_ && atsEnableWithFlowModel_)
+    {
+        coarseSaveSpotRPtr_.set
+        (
+            new symmTensorField(mesh_.nCells(), pTraits<symmTensor>::zero)
+        );
     }
 
     // Reference pressure
@@ -395,6 +433,8 @@ Foam::craftsPimpleFlow::craftsPimpleFlow
     }
     sourceTermX_.dimensions() = sourceTermY_.dimensions();
     sourceTermX_.dimensions() = sourceTermZ_.dimensions();
+
+    readDict();
 }
 
 
@@ -428,7 +468,10 @@ Foam::label Foam::craftsPimpleFlow::step()
 
 void Foam::craftsPimpleFlow::storeCoarseSolution()
 {
-    coarseSaveSpotR_ = turbulence_->R()().internalField();
+    if (!atsIgnoreR_ && atsEnableWithFlowModel_)
+    {
+        coarseSaveSpotRPtr_() = turbulence_->R()().internalField();
+    }
     this->craftsFlow::storeCoarseSolution();
 }
 
@@ -442,41 +485,55 @@ void Foam::craftsPimpleFlow::storeFineSolution()
 
 void Foam::craftsPimpleFlow::calculateScales()
 {
-    symmTensorField& R(coarseSaveSpotR_);
-    RScale_.component(0) = max
-    (
-        model_.calculateRms(R.component(0)),
-        RMinScale_.component(0)
-    );
-    RScale_.component(1) = max
-    (
-        model_.calculateRms(R.component(1)),
-        RMinScale_.component(1)
-    );
-    RScale_.component(2) = max
-    (
-        model_.calculateRms(R.component(2)),
-        RMinScale_.component(2)
-    );
-    RScale_.component(3) = max
-    (
-        model_.calculateRms(R.component(3)),
-        RMinScale_.component(3)
-    );
-    RScale_.component(4) = max
-    (
-        model_.calculateRms(R.component(4)),
-        RMinScale_.component(4)
-    );
-    RScale_.component(5) = max
-    (
-        model_.calculateRms(R.component(5)),
-        RMinScale_.component(5)
-    );
-    this->craftsFlow::calculateScales();
-    if (outputFlowErrorScales_)
+    if (atsEnableWithFlowModel_)
     {
-        Info << "flowErrorScales: R = " << RScale_ << endl;
+        if (subStepping_)
+        {
+            if (!atsIgnoreR_)
+            {
+                symmTensorField& R(coarseSaveSpotRPtr_());
+                atsRScale_.component(0) = max
+                (
+                    model_.calculateRms(R.component(0)),
+                    atsRMinScale_.component(0)
+                );
+                atsRScale_.component(1) = max
+                (
+                    model_.calculateRms(R.component(1)),
+                    atsRMinScale_.component(1)
+                );
+                atsRScale_.component(2) = max
+                (
+                    model_.calculateRms(R.component(2)),
+                    atsRMinScale_.component(2)
+                );
+                atsRScale_.component(3) = max
+                (
+                    model_.calculateRms(R.component(3)),
+                    atsRMinScale_.component(3)
+                );
+                atsRScale_.component(4) = max
+                (
+                    model_.calculateRms(R.component(4)),
+                    atsRMinScale_.component(4)
+                );
+                atsRScale_.component(5) = max
+                (
+                    model_.calculateRms(R.component(5)),
+                    atsRMinScale_.component(5)
+                );
+            }
+            this->craftsFlow::calculateScales();
+            if (outputFlowErrorScales_)
+            {
+                Info << "flowErrorScales: R = " << atsRScale_ << endl;
+            }
+        }
+    }
+    else if (outputFlowErrorScales_)
+    {
+        Info << "flowErrorScales: n/a (flow adaptiveTimestepping disabled)"
+            << endl;
     }
 }
 
@@ -484,98 +541,127 @@ void Foam::craftsPimpleFlow::calculateScales()
 Foam::scalar Foam::craftsPimpleFlow::testConvergence() const
 {
     // Turbulence residuals
-    scalar turbError(-VGREAT);
+    scalar returnMe(-VGREAT);
 
-    if (subStepping_)
+    if (atsEnableWithFlowModel_)
     {
-        scalarField Rerr(pTraits<symmTensor>::nComponents, -VGREAT);
-        forAll(Rerr, comp)
+        scalar turbError(-VGREAT);
+        if (subStepping_)
         {
-            Rerr[comp] = admReactionReader::calculateRmsError
-            (
-                fineSaveSpotRPtr_().component(comp),
-                coarseSaveSpotR_.component(comp),
-                mesh_.V().field(),
-                RScale_.component(comp)
-            ) - RConvergence_.component(comp);
-            turbError = max(turbError, Rerr[comp]);
-        }
-    }
-    else
-    {
-        const symmTensorField R(turbulence_->R()().internalField());
-        scalarField Rerr(pTraits<symmTensor>::nComponents, -VGREAT);
-        forAll(Rerr, comp)
-        {
-            Rerr[comp] = admReactionReader::calculateRmsError
-            (
-                R.component(comp),
-                coarseSaveSpotR_.component(comp),
-                mesh_.V().field(),
-                RScale_.component(comp)
-            ) - RConvergence_.component(comp);
-            turbError = max(turbError, Rerr[comp]);
-        }
-    }
-
-    // p and phi residuals
-    scalar pPhiError(this->craftsFlow::testConvergence());
-    scalar returnMe(max(turbError, pPhiError));
-
-    if (outputFlowResiduals_)
-    {
-        Info << "flowResiduals: Turbulence, R: " << turbError;
-        if (turbError > 0)
-        {
-            Info << " (fail)." << endl;
+            if (!atsIgnoreR_)
+            {
+                scalarField Rerr(pTraits<symmTensor>::nComponents, -VGREAT);
+                forAll(Rerr, comp)
+                {
+                    Rerr[comp] = admReactionReader::calculateRmsError
+                    (
+                        fineSaveSpotRPtr_().component(comp),
+                        coarseSaveSpotRPtr_().component(comp),
+                        mesh_.V().field(),
+                        atsRScale_.component(comp)
+                    ) - atsRTolerance_.component(comp);
+                    turbError = max(turbError, Rerr[comp]);
+                }
+            }
         }
         else
         {
-            Info << " (pass)." << endl;
+            if (!atsIgnoreR_)
+            {
+                const symmTensorField R(turbulence_->R()().internalField());
+                scalarField Rerr(pTraits<symmTensor>::nComponents, -VGREAT);
+                forAll(Rerr, comp)
+                {
+                    Rerr[comp] = admReactionReader::calculateRmsError
+                    (
+                        R.component(comp),
+                        coarseSaveSpotRPtr_().component(comp),
+                        mesh_.V().field(),
+                        atsRScale_.component(comp)
+                    ) - atsRTolerance_.component(comp);
+                    turbError = max(turbError, Rerr[comp]);
+                }
+            }
+        }
+
+        // p and phi residuals
+        scalar pPhiError(this->craftsFlow::testConvergence());
+        returnMe = max(turbError, pPhiError);
+
+        if (outputFlowResiduals_)
+        {
+            Info << "flowResiduals: Turbulence, R: " << turbError;
+            if (turbError > 0)
+            {
+                Info << " (fail)." << endl;
+            }
+            else
+            {
+                Info << " (pass)." << endl;
+            }
         }
     }
-
+    else if (outputFlowResiduals_)
+    {
+        Info << "flowResiduals: n/a (flow adaptiveTimestepping disabled)"
+            << endl;
+    }
     return returnMe;
 }
 
 
 Foam::scalar Foam::craftsPimpleFlow::calculateNextBestDeltaT() const
 {
-    const symmTensorField R(turbulence_->R()().internalField());
+    scalar returnMe(VGREAT);
+    
+    if (atsEnableWithFlowModel_)
+    {
+        scalar minDtR(VGREAT);
 
-    scalarField dtR(pTraits<symmTensor>::nComponents, VGREAT);
-    scalar minDtR(VGREAT);
-    forAll(dtR, comp)
-    {
-        dtR[comp] = admReactionReader::calculateNextDeltaT
-        (
-            coarseSaveSpotR_.component(comp),
-            R.component(comp),
-            RConvergence_.component(comp),
-            mesh_.V().field(),
-            runTime_.deltaT().value(),
-            RScale_.component(comp)
-        );
-        minDtR = min(minDtR, dtR[comp]);
-    }
-    
-    scalar dtPhiP(this->craftsFlow::calculateNextBestDeltaT());
-    
-    if (outputFlowTimestepEstimate_)
-    {
-        Info << "flowTimestepEstimate: Turbulence, R dtEst = "
-            << minDtR;
-        if (dtPhiP < minDtR)
+        if (!atsIgnoreR_)
         {
-            Info << " (not a bottleneck)" << endl;
+            const symmTensorField R(turbulence_->R()().internalField());
+
+            scalarField dtR(pTraits<symmTensor>::nComponents, VGREAT);
+            forAll(dtR, comp)
+            {
+                dtR[comp] = admReactionReader::calculateNextDeltaT
+                (
+                    coarseSaveSpotRPtr_().component(comp),
+                    R.component(comp),
+                    atsRTolerance_.component(comp),
+                    mesh_.V().field(),
+                    runTime_.deltaT().value(),
+                    atsRScale_.component(comp)
+                );
+                minDtR = min(minDtR, dtR[comp]);
+            }
         }
-        else
+
+        scalar dtPhiP(this->craftsFlow::calculateNextBestDeltaT());
+        returnMe = min(dtPhiP,minDtR);
+        
+        if (outputFlowTimestepEstimate_)
         {
-            Info << " (bottleneck)" << endl;
+            Info << "flowTimestepEstimate: Turbulence, R dtEst = "
+                << minDtR;
+            if (dtPhiP < minDtR)
+            {
+                Info << " (not a bottleneck)" << endl;
+            }
+            else
+            {
+                Info << " (bottleneck)" << endl;
+            }
         }
     }
-    
-    return min(dtPhiP,minDtR);
+    else if(outputFlowTimestepEstimate_)
+    {
+        Info << "flowTimestepEstimate: n/a (flow adaptiveTimestepping disabled)"
+            << endl;
+    } 
+
+    return returnMe;
 }
 
 

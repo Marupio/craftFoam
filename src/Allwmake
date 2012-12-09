@@ -3,6 +3,6 @@ cd ${0%/*} || exit 1    # run from this directory
 
 wmake libso craftsFoamLibrary && \
 wmake libso craftsFlowModels && \
-craftsUdfs/Allwmake
+(cd craftsUdfs && ./Allwmake)
 
 # ----------------------------------------------------------------- end-of-file
