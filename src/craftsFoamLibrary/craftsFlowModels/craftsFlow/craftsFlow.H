@@ -142,12 +142,17 @@ protected:
         //      FIXED_TIMESTEP
         //      ADAPTIVE_TIMESTEP
         scalar ssMaxDeltaT_;
-        
+
         //- Minimum flow timestep
         //  Used with:
         //      FIXED_TIMESTEP
         //      ADAPTIVE_TIMESTEP
         scalar ssMinDeltaT_;
+
+        //- Targeted flow timestep
+        //  Used with:
+        //      FIXED_TIMESTEP
+        scalar ssTargetDeltaT_;
     
         //- Maximum number of subSteps
         //  Used with:
@@ -386,6 +391,28 @@ public:
 
             //- Estimate the next best delta T to use
             virtual scalar calculateNextBestDeltaT() const;
+
+
+        // Sub-stepping functions
+        //  These are specifically called by craftsModel during the
+        //  calculateNextBestDeltaT function
+
+
+            //- If substepping is ADAPTIVE_TIMESTEP, adjust number of substeps
+            //  such that the adaptive timestep required by the flow variables
+            //  moves as necessary to maximize the reaction timestep.
+            virtual void adjustSubSteppingAdaptiveTimestep
+            (
+                scalar reactionNextDeltaT,
+                scalar& flowNextDeltaT
+            ) const;
+
+            //- If substepping is FIXED_TIMESTEP, adjust number of substeps to
+            //  achieve a deltaT close to the target, given the reaction deltaT
+            virtual void adjustSubSteppingFixedTimestep
+            (
+                scalar nextDeltaT
+            ) const;
 
 
         // State control

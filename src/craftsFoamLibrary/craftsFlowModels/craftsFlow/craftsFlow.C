@@ -130,14 +130,20 @@ void Foam::craftsFlow::readDict()
     }
 
     // SubStepping error checking
-    if (ssMaxDeltaT_ <= ssMinDeltaT_)
+    if
+    (
+        (ssMaxDeltaT_ <= ssMinDeltaT_)
+     || (ssTargetDeltaT_ > ssMaxDeltaT_)
+     || (ssTargetDeltaT_ < ssMinDeltaT_)
+    )
     {
         FatalIOErrorIn
         (
             "craftsFlow::readDict",
             settingsDict_.subDict("subStepping")
         )
-            << "maxDeltaT (" << ssMaxDeltaT_ << ") must be greater than "
+            << "maxDeltaT (" << ssMaxDeltaT_ << ") must be >= "
+            << "targetDeltaT (" << ssTargetDeltaT_ << ") must be >= "
             << "minDeltaT (" << ssMinDeltaT_ << ")"
             << exit(FatalIOError);
     }
@@ -158,7 +164,8 @@ void Foam::craftsFlow::readDict()
             "craftsFlow::readDict",
             settingsDict_.subDict("subStepping")
         )
-            << "maxNSteps must be an even integer greater than 1."
+            << "maxNSteps = " << ssMaxNSubSteps_ << ", must be an even "
+            << "integer greater than 1."
             << exit(FatalIOError);
     }
     if ((ssMinNSubSteps_ < 2) || (ssMinNSubSteps_ % 2))
@@ -168,7 +175,8 @@ void Foam::craftsFlow::readDict()
             "craftsFlow::readDict",
             settingsDict_.subDict("subStepping")
         )
-            << "minNSteps must be an even integer greater than 1."
+            << "minNSteps = " << ssMinNSubSteps_ << ", must be an even "
+            << "integer greater than 1."
             << exit(FatalIOError);
     }
     if (subStepping_)
@@ -260,11 +268,17 @@ Foam::craftsFlow::craftsFlow
       ? readLabel(settingsDict_.subDict("subStepping").lookup("minDeltaT"))
       : scalar(0)
     ),
+    ssTargetDeltaT_
+    (
+        settingsDict_.subDict("subStepping").found("targetDeltaT")
+      ? readScalar(settingsDict_.subDict("subStepping").lookup("targetDeltaT"))
+      : ssMaxDeltaT_ / 2.0 + ssMinDeltaT_ / 2.0
+    ),
     ssMaxNSubSteps_
     (
         settingsDict_.subDict("subStepping").found("maxNSteps")
       ? readLabel(settingsDict_.subDict("subStepping").lookup("maxNSteps"))
-      : FOAM_LABEL_MAX
+      : 2000000000
     ),
     ssMinNSubSteps_
     (
@@ -394,10 +408,7 @@ Foam::craftsFlow::craftsFlow
 Foam::label Foam::craftsFlow::setNSubSteps(label newNSubSteps) const
 {
     // Force to even
-    if (newNSubSteps % 2)
-    {
-        newNSubSteps++;
-    }
+    newNSubSteps += newNSubSteps % 2;
     
     // Apply limits
     ssCurrentNSubSteps_ = max(ssMinNSubSteps_, newNSubSteps);
@@ -639,6 +650,124 @@ Foam::scalar Foam::craftsFlow::calculateNextBestDeltaT() const
             << "disabled)" << endl;
     }
     return VGREAT;
+}
+
+
+void Foam::craftsFlow::adjustSubSteppingAdaptiveTimestep
+(
+    scalar reactionNextDeltaT,
+    scalar& flowNextDeltaT
+) const
+{
+    if (subSteppingType_ == ADAPTIVE_TIMESTEP)
+    {
+        label nextBestSubSteps
+        (
+            ssCurrentNSubSteps_ * reactionNextDeltaT / flowNextDeltaT
+        );
+        label lastSubSteps(ssCurrentNSubSteps_);
+        label newSubSteps(setNSubSteps(nextBestSubSteps));
+        flowNextDeltaT *= newSubSteps / lastSubSteps;
+        if (outputFlowTimestepEstimate_)
+        {
+            Info << "flowTimestepEstimate: subSteps changed from "
+                << lastSubSteps << " to " << newSubSteps << endl;
+        }
+    }
+}
+
+
+void Foam::craftsFlow::adjustSubSteppingFixedTimestep
+(
+    scalar nextDeltaT
+) const
+{
+    OStringStream errorMessage;
+    bool failed(false);
+
+    if (subSteppingType_ == FIXED_TIMESTEP)
+    {
+        bool successful(false);
+        scalar idealNSteps(nextDeltaT / ssTargetDeltaT_);
+        label actualNSteps(idealNSteps + 0.5);        
+        scalar actualDeltaT;
+
+        while (!successful && !failed)
+        {
+            actualNSteps = setNSubSteps(actualNSteps);
+
+            actualDeltaT = nextDeltaT / actualNSteps;
+            if (actualDeltaT > ssMaxDeltaT_)
+            {
+                if (actualNSteps == ssMaxNSubSteps_)
+                {
+                    errorMessage << "maxNSteps and maxDeltaT limit exceeded";
+                    failed = true;
+                }
+                else
+                {
+                    actualNSteps += 2;
+                }
+            }
+            else if (actualDeltaT < ssMinDeltaT_)
+            {
+                if (actualNSteps == ssMinNSubSteps_)
+                {
+                    errorMessage << "minNSteps and minDeltaT limit exceeded";
+                    failed = true;
+                }
+                else
+                {
+                    actualNSteps -= 2;
+                }
+            }
+            else
+            {
+                successful = true;
+            }
+        }
+    }
+    
+    scalar flowDeltaT(nextDeltaT / ssCurrentNSubSteps_);
+    
+    if (!failed)
+    {
+        if (flowDeltaT > ssMaxDeltaT_)
+        {
+            errorMessage << "maxDeltaT limit exceeded";
+            failed = true;
+        }
+        else if (flowDeltaT < ssMinDeltaT_)
+        {
+            errorMessage << "minDeltaT limit exceeded";
+            failed = true;
+        }
+    }
+
+    if (failed)
+    {
+        FatalErrorIn("craftsFlow::adjustSubSteppingFixedTimestep")
+            << "Flow model sub-stepping requirements cannot be met:"
+            << token::NL << token::TAB
+            << "Reason: " << errorMessage.str()
+            << token::NL << token::TAB
+            << "Reaction deltaT = " << nextDeltaT
+            << token::NL << token::TAB
+            << "Flow deltaT (min, target, max):"
+            << token::NL << token::TAB << token::TAB
+            << "(" << ssMinDeltaT_ << ", " << ssTargetDeltaT_ << ", "
+            << ssMaxDeltaT_ << ")"
+            << token::NL << token::TAB
+            << "Sub-steps (min, max):"
+            << token::NL << token::TAB << token::TAB
+            << "(" << ssMinNSubSteps_ << ", " << ssMaxNSubSteps_ << ")"
+            << token::NL << token::TAB
+            << ssCurrentNSubSteps_ << " gives flow delta T of "
+            << flowDeltaT
+            << token::NL << token::NL << token::TAB
+            << "Change sub-stepping limits."
+            << abort(FatalError);
+    }
 }
 
 

@@ -18,25 +18,29 @@ chainRuleSearchDepth        3;
 functionHooks               empty;
 flowModel
 {
-    type    piso;
+    type        piso;
     subStepping
     {
-        useSubStepping      yes;
-        maxNSteps           50;
-        minNSteps           2;
-        initialNSteps       10;
+        type            adaptiveTimestep;
+        maxNSteps       50;
+        minNSteps       2;
+        initialNSteps   10;
     }
-    adaptiveTimeSteppingTolerance
+    adaptiveTimestepping
     {
-        phi     1e-2;
-        p       1e-3;
-        R       (1e-2 1e-2 1e-2 1e-2 1e-2 1e-2);
-    }
-    minErrorScale
-    {
-        phi     1e-6;
-        p       1e-6;
-        R       (1e-6 1e-6 1e-6 1e-6 1e-6 1e-6);
+        enableWithFlowModel     yes;
+        tolerance
+        {
+            phi     1e-2;
+            p       1e-3;
+            R       (1e-2 1e-2 1e-2 1e-2 1e-2 1e-2);
+        }
+        minErrorScale
+        {
+            phi     1e-6;
+            p       1e-6;
+            R       (1e-6 1e-6 1e-6 1e-6 1e-6 1e-6);
+        }
     }
 }
 outerLoopMaxIterations      20;
@@ -89,22 +93,38 @@ flowModel
     type        flowModelName;
     subStepping
     {
-        useSubStepping      yes/no;
-        maxNSteps           label;  // default FOAM_LABEL_MAX
-        minNSteps           label;  // default 2
-        initialNSteps       label;  // must be even, default 2
+        type        off;
+        type        fixedNSteps;
+            nSteps          label;  // must be even
+        type        fixedTimestep;
+            maxDeltaT       scalar; // default VGREAT
+            targetDeltaT    scalar; // default maxDeltaT/2 + minDeltaT/2
+            minDeltaT       scalar; // default VSMALL
+            maxNSteps       label;  // must be even, default 2000000000
+            minNSteps       label;  // must be even, default 2
+        type        adaptiveTimestep;
+            maxDeltaT       scalar; // default VGREAT
+            minDeltaT       scalar; // default VSMALL
+            maxNSteps       label;  // must be even, default 2000000000
+            minNSteps       label;  // must be even, default 2
+            initialNSteps   label;  // must be even, default 2
     }
-    adaptiveTimeSteppingTolerance
+    adaptiveTimestepping
     {
-        phi     scalar;     // if required
-        p       scalar;     // if required
-        R       symmTensor; // if required
-    }
-    minErrorScale
-    {
-        phi     scalar;     // default SMALL
-        p       scalar;     // default SMALL
-        R       symmTensor; // default SMALL symmtensor
+        enableWithFlowModel     yes/no; // must be yes if req'd by subStepping
+        ignore ( phi p R );     // include fields to ignore
+        tolerance
+        {
+            phi     scalar;     // if required
+            p       scalar;     // if required
+            R       symmTensor; // if required
+        }
+        minErrorScale
+        {
+            phi     scalar;     // default SMALL
+            p       scalar;     // default SMALL
+            R       symmTensor; // default SMALL symmtensor
+        }
     }
 }
 outerLoopMaxIterations      integer;

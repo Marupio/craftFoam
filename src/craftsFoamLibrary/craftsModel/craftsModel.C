@@ -762,26 +762,12 @@ Foam::scalar Foam::craftsModel<matrixSize>::calculateNextBestDeltaT() const
     // Ask the flow model for its suggestions
     scalar flowNextBestTime(flow_->calculateNextBestDeltaT());
 
-    if (flow_->subStepping())
-    {
-        label nextBestSubSteps
-        (
-            flow_->nSubSteps() * reactionNextDeltaT / flowNextBestTime
-//            reactionNextDeltaT / flowNextBestTime
-        );
-        label lastSubSteps(flow_->nSubSteps());
-        label newSubSteps(flow_->setNSubSteps(nextBestSubSteps));
-        flowNextBestTime *= newSubSteps / lastSubSteps;
-        if (flow_->outputFlowTimestepEstimate())
-        {
-            Info << "flowTimestepEstimate: subSteps changed from "
-                << lastSubSteps << " to " << newSubSteps << endl;
-        }
-    }
-    else if (flow_->outputFlowTimestepEstimate())
-    {
-        Info << "flowTimestepEstimate: subStepping disabled" << endl;
-    }
+    // Adjust flow model timestep based on available sub-stepping room
+    flow_->adjustSubSteppingAdaptiveTimestep
+    (
+        reactionNextDeltaT,
+        flowNextBestTime
+    );
 
     scalar nextDeltaT(min(flowNextBestTime, reactionNextDeltaT));
 
@@ -838,6 +824,9 @@ Foam::scalar Foam::craftsModel<matrixSize>::calculateNextBestDeltaT() const
 
     // Apply overclock factor
     nextDeltaT *= atsOverclockFactor_;
+
+    // Adjust number of substeps to target a fixed timestep
+    flow_->adjustSubSteppingFixedTimestep(nextDeltaT);
 
     // Ensure it won't exceed the end time ( divide by 2 because we take double
     // steps )
