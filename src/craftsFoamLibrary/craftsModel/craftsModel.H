@@ -151,6 +151,9 @@ private:
             
             //- All implicit loop residuals (default false)
             bool outputImplicitLoopDetails_;
+            
+            //- SubStep timestep progress (default true)
+            bool outputFlowSubStepProgress_;
 
 
         // Control

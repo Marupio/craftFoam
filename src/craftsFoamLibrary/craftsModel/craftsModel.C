@@ -288,6 +288,12 @@ Foam::craftsModel<matrixSize>::craftsModel
       ? bool(Switch(outputFlagsDict_.lookup("implicitLoopDetails")))
       : false
     ),
+    outputFlowSubStepProgress_
+    (
+        outputFlagsDict_.found("flowSubStepProgress")
+      ? bool(Switch(outputFlagsDict_.lookup("flowSubStepProgress")))
+      : true
+    ),
 
     outerLoopMaxIterations_
     (
@@ -934,10 +940,25 @@ Foam::label Foam::craftsModel<matrixSize>::stepFlowDispatch(stepType st)
         }
         runTime_.setDeltaT(newDeltaT);
 
+        if (outputFlowSubStepProgress_)
+        {
+            Info << "flowSubStepProgress: starting "
+                << flow_->nSubSteps() << " sub-steps of " << newDeltaT
+                << " s" << endl;
+        }
+
         // Step to the middle
         for (label count(0); count < (flow_->nSubSteps() / 2); count++)
         {
             runTime_.plusPlusNoOutput();
+
+            if (outputFlowSubStepProgress_)
+            {
+                Info << "flowSubStepProgress: step " << count + 1 << " of "
+                    << flow_->nSubSteps() << " at " << runTime_.timeName()
+                    << endl;
+            }
+
             label returnMe(flow_->step()); //&&&
             if (returnMe)
             {
@@ -954,6 +975,15 @@ Foam::label Foam::craftsModel<matrixSize>::stepFlowDispatch(stepType st)
         for (label count(0); count < (flow_->nSubSteps() / 2); count++)
         {
             runTime_.plusPlusNoOutput();
+
+            if (outputFlowSubStepProgress_)
+            {
+                Info << "flowSubStepProgress: step "
+                    << label(count + flow_->nSubSteps() / 2 + 1) << " of "
+                    << flow_->nSubSteps() << " at " << runTime_.timeName()
+                    << endl;
+            }
+
             label returnMe(flow_->step()); //&&&
             if (returnMe)
             {
@@ -973,9 +1003,9 @@ Foam::label Foam::craftsModel<matrixSize>::stepFlowDispatch(stepType st)
                 // carry through to next case
             case FINEA:
                 saveFlowState(3);
-        }        
+        }
 
-        if (transitionToNextTimestep_)
+        if (transitionToNextTimestep_ || st == FINEB)
         {
             loadState(1);
         }

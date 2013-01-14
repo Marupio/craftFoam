@@ -50,6 +50,19 @@ void Foam::craftsFlow::readDict()
     else if (subSteppingTypeWord_ == "fixedNSteps")
     {
         subSteppingType_ = FIXED_N_STEPS;
+        ssCurrentNSubSteps_ = readLabel
+        (
+            settingsDict_.subDict("subStepping").lookup("nSteps")
+        );
+        if (ssCurrentNSubSteps_ % 2)
+        {
+            WarningIn("craftsFlow::readDict")
+                << "nSteps must be even.  Using "
+                << ssCurrentNSubSteps_ + 1 << " in place of "
+                << ssCurrentNSubSteps_ << endl;
+            
+            ssCurrentNSubSteps_++;
+        }
     }
     else if (subSteppingTypeWord_ == "fixedTimestep")
     {

@@ -83,6 +83,7 @@ outputFlags
     flowErrorScales                 yes; // default = no
     flowTimestepEstimate            yes; // default = yes
     flowContinuityErrors            no; // default = yes
+    flowSubStepProgress             yes; // default = yes
 }
 
 /*
@@ -169,6 +170,7 @@ outputFlags
     flowErrorScales                 yes/no; // default = no
     flowTimestepEstimate            yes/no; // default = yes
     flowContinuityErrors            yes/no; // default = yes
+    flowSubStepProgress             yes/no; // default = yes
 }
 */
 
