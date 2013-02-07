@@ -107,7 +107,7 @@ Foam::label Foam::craftsSh2IonsGasUdfs<matrixSize>::getIons()
     label iter(0);
     scalarField numerator(mesh.nCells(), 0.0);
     scalarField denominator(mesh.nCells(), 1.0);
-    
+
     // Normally we'd start the loop here, but the first iteration is pulled out
     // to test for unacceptable loss of accuracy
     S_va_m = k_a_va * S_va / (k_a_va + S_h_p);

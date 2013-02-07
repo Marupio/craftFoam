@@ -329,6 +329,7 @@ Foam::label Foam::craftsModel<matrixSize>::implicitAutoSolveField
             Sold,
             implicitScale_[impVar.localIndex()]
         ) - convergence;
+
         if (convergedTo < 0)
         {
             break;

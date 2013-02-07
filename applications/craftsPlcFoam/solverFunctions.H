@@ -111,6 +111,7 @@ void solve
                 // Solve a single step size
                 if (model.coarseStep() != 0)
                 {
+                    runTime.halveDeltaT();
                     break;
                 }
                 
@@ -159,15 +160,9 @@ void solve
                         << "adaptive timestepping."
                         << abort(FatalError);
                 }
-                
+
                 // Now the timestep *must* be reduced by a minimum value
                 // i.e. atsMinReductionFactor_ applies
-                // First, undouble deltaT, if applicable
-                if (runTime.doubled())
-                {
-                    runTime.halveDeltaT();
-                }
-
                 scalar maxDeltaT
                 (
                     runTime.deltaT().value()

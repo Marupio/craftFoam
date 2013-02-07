@@ -36,7 +36,7 @@ namespace Foam
 #define TempFunctionHookMacro(index)                                          \
     MakeFullCoupledHooksDerivedDefinitions                                    \
     (                                                                         \
-        index, dae, craftsSh2IonsUdfs                                             \
+        index, sh2Ions, craftsSh2IonsUdfs                                     \
     );
     
 #define VectorNMacro TempFunctionHookMacro
