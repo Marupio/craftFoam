@@ -283,47 +283,22 @@ void Foam::craftsModel<matrixSize>::createLduMesh()
 template <int matrixSize>
 void Foam::craftsModel<matrixSize>::createTransportFaceIndices()
 {
-    for (label cellIndex(0); cellIndex < mesh_.nCells(); cellIndex++)
+    // Internal faces only
+    forAll(mesh_.neighbour(), faceI)
     {
-        // Owner faces
-        label i(0);
-        while
-        (
-            (i < mesh_.owner().size())
-         && (mesh_.owner()[i] != cellIndex)
-        )
-        {
-            i++;
-        }
-        while
-        (
-            (i < mesh_.owner().size())
-         && (mesh_.owner()[i] == cellIndex)
-        )
-        {
-            label newIndex(transportOwners_[cellIndex].size());
-            transportOwners_[cellIndex].setSize(newIndex + 1);
-            transportOwners_[cellIndex][newIndex] = i;
-            
-            transportOwnersCells_[cellIndex].setSize(newIndex + 1);
-            transportOwnersCells_[cellIndex][newIndex] =
-                mesh_.neighbour()[i];
-            i++;
-        }
-        
-        // Neighbour faces
-        forAll(mesh_.neighbour(), i)
-        {
-            if (mesh_.neighbour()[i] == cellIndex)
-            {
-                label newIndex(transportNeighbours_[cellIndex].size());
-                transportNeighbours_[cellIndex].setSize(newIndex + 1);
-                transportNeighbours_[cellIndex][newIndex] = i;
-                transportNeighboursCells_[cellIndex].setSize(newIndex + 1);
-                transportNeighboursCells_[cellIndex][newIndex] =
-                    mesh_.owner()[i];
-            }
-        }
+        label cellIndex(mesh_.owner()[faceI]);
+        label newIndex(transportOwners_[cellIndex].size());
+        transportOwners_[cellIndex].setSize(newIndex + 1);
+        transportOwners_[cellIndex][newIndex] = faceI;
+        transportOwnersCells_[cellIndex].setSize(newIndex + 1);
+        transportOwnersCells_[cellIndex][newIndex] = mesh_.neighbour()[faceI];
+
+        cellIndex = mesh_.neighbour()[faceI];
+        newIndex = transportNeighbours_[cellIndex].size();
+        transportNeighbours_[cellIndex].setSize(newIndex + 1);
+        transportNeighbours_[cellIndex][newIndex] = faceI;
+        transportNeighboursCells_[cellIndex].setSize(newIndex + 1);
+        transportNeighboursCells_[cellIndex][newIndex] = mesh_.owner()[faceI];
     }
 }
 
