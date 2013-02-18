@@ -62,9 +62,9 @@ adaptiveTimeStepping
 }
 outputFlags
 {
-    overallSummary                  yes; // default = yes
-    timeDetails                     no; // default = no
+    timeDetails                     no;  // default = no
     
+    reactionSummary                 yes; // default = yes
     reactionAverages                yes; // default = yes
     reactionSolverPerformance       no; // default = no
     reactionResidualSummary         yes; // default = yes
@@ -147,9 +147,9 @@ adaptiveTimeStepping
 }
 outputFlags
 {
-    overallSummary                  yes/no; // default = yes
     timeDetails                     yes/no; // default = no
     
+    reactionSummary                 yes/no; // default = yes
     reactionAverages                yes/no; // default = yes
     reactionSolverPerformance       yes/no; // default = no
     reactionResidualSummary         yes/no; // default = yes

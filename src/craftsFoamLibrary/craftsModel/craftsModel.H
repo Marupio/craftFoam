@@ -125,8 +125,8 @@ private:
         // during a run.  They are contained in admSettingsDict.  Other classes
         // can add to this subdictionary.
 
-            //- Summarizes results from one full step (default true)
-            bool outputOverallSummary_;
+            //- Summarizes results of one reaction solver step (default true)
+            bool outputReactionSummary_;
 
             //- Summarizes reaction variable residuals (default true)
             bool outputReactionResidualSummary_;
@@ -540,8 +540,8 @@ public:
 
             // Output flags
 
-                //- Output flag for results summary from one full step
-                inline const bool& outputOverallSummary() const;
+                //- Output flag for reaction summary from one full step
+                inline const bool& outputReactionSummary() const;
 
                 //- Output flag for reaction variable residual summary
                 inline const bool& outputReactionResidualSummary() const;

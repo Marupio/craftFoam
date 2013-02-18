@@ -117,7 +117,7 @@ void solve
                 
                 // Return to the original starting point
                 model.loadState(0);
-                runTime.setDeltaT(nextDeltaT);
+                runTime.setDeltaTLimited(nextDeltaT);
                 
                 // First half-step
                 Info << "\n---CRAFTS--- Fine steps"

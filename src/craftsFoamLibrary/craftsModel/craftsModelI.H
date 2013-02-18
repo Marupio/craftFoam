@@ -83,9 +83,9 @@ inline craftsFlow& craftsModel<matrixSize>::flow()
 
 
 template<int matrixSize>
-inline const bool& craftsModel<matrixSize>::outputOverallSummary() const
+inline const bool& craftsModel<matrixSize>::outputReactionSummary() const
 {
-    return outputOverallSummary_;
+    return outputReactionSummary_;
 }
 
 

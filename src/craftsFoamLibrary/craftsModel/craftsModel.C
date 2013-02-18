@@ -240,6 +240,13 @@ Foam::craftsModel<matrixSize>::craftsModel
     coarseStepStandardSaveSpot_(0),
     coarseStepImplicitSaveSpot_(0),
 
+    outputReactionSummary_
+    (
+        outputFlagsDict_.found("reactionSummary")
+      ? bool(Switch(outputFlagsDict_.lookup("reactionSummary")))
+      : true
+    ),
+
     outputReactionResidualSummary_
     (
         outputFlagsDict_.found("reactionResidualSummary")
@@ -1346,10 +1353,13 @@ reportVariablesHeader(osv);*/
             )
         );
         
-        Info << "overallSummary: t = " << runTime_.timeName() << ", dt = "
-            << runTime_.deltaT().value() << ", i = "
-            << outerIteration << ", res = " << convergenceTest
-            << ", imp = " << label(impResult) << endl;
+        if (outputReactionSummary_)
+        {
+            Info << "reactionSummary: t = " << runTime_.timeName() << ", dt = "
+                << runTime_.deltaT().value() << ", i = "
+                << outerIteration << ", res = " << convergenceTest
+                << ", imp = " << label(impResult) << endl;
+        }
 /*if (debug > 1)
 {
     FatalErrorIn("craftsModel") << "Debug stop point" << abort(FatalError);
