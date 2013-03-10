@@ -1240,7 +1240,6 @@ reportVariablesHeader(osv);*/
     osx << "blockX = [" << blockX << "]" << endl;
     osb << "blockB = [" << blockB << "]" << endl;
 }*/
-
         //- Block coupled solver call
         BlockSolverPerformance<vectorType> solverPerf =
             BlockLduSolver<vectorType>::New

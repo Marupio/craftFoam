@@ -44,7 +44,7 @@ void blockInsert
     Field<BlockType>& blockX
 )
 {
-    // Reverse pointer loop below is an optimised implementation of:
+    // Pointer loop below is an optimised implementation of:
     //forAll (x, i)
     //{
     //    blockX[i](dir) = x[i];
@@ -92,7 +92,7 @@ void blockIncrement
     Field<BlockType>& blockX
 )
 {
-    // Reverse pointer loop below is an optimised implementation of:
+    // Pointer loop below is an optimised implementation of:
     //forAll (x, i)
     //{
     //    blockX[i](dir) += x[i];
@@ -140,7 +140,7 @@ void blockRetrieve
     const Field<BlockType>& blockX
 )
 {
-    // Reverse pointer loop below is an optimised implementation of:
+    // Pointer loop below is an optimised implementation of:
     //forAll (x, i)
     //{
     //    x[i] = blockX[i](dir);
@@ -184,7 +184,7 @@ void insertDiagSource
             typename CoeffField<BlockType>::linearTypeField& blockDiag =
                 blockM.diag().asLinear();
 
-            // Reverse pointer loop below is an optimised implementation of:
+            // Pointer loop below is an optimised implementation of:
             //forAll (diag, i)
             //{
             //    blockDiag[i](dir) = diag[i];
@@ -216,7 +216,7 @@ void insertDiagSource
             typename CoeffField<BlockType>::squareTypeField& blockDiag =
                 blockM.diag().asSquare();
 
-            // Reverse pointer loop below is an optimised implementation of:
+            // Pointer loop below is an optimised implementation of:
             //forAll (diag, i)
             //{
             //    blockDiag[i](dir, dir) = diag[i];
@@ -283,7 +283,7 @@ void addDiagSource
             typename CoeffField<BlockType>::linearTypeField& blockDiag =
                 blockM.diag().asLinear();
 
-            // Reverse pointer loop below is an optimised implementation of:
+            // Pointer loop below is an optimised implementation of:
             //forAll (diag, i)
             //{
             //    blockDiag[i](dir) += diag[i];
@@ -315,7 +315,7 @@ void addDiagSource
             typename CoeffField<BlockType>::squareTypeField& blockDiag =
                 blockM.diag().asSquare();
 
-            // Reverse pointer loop below is an optimised implementation of:
+            // Pointer loop below is an optimised implementation of:
             //forAll (diag, i)
             //{
             //    blockDiag[i](dir, dir) += diag[i];
@@ -382,7 +382,7 @@ void insertUpperLower
                 typename CoeffField<BlockType>::linearTypeField& blockUpper =
                     blockM.upper().asLinear();
 
-                // Reverse pointer loop below is an optimised implementation
+                // Pointer loop below is an optimised implementation
                 // of:
                 //forAll (upper, i)
                 //{
@@ -415,7 +415,7 @@ void insertUpperLower
                 typename CoeffField<BlockType>::squareTypeField& blockUpper =
                     blockM.upper().asSquare();
 
-                // Reverse pointer loop below is an optimised implementation
+                // Pointer loop below is an optimised implementation
                 // of:
                 //forAll (upper, i)
                 //{
@@ -481,7 +481,7 @@ void insertUpperLower
                 typename CoeffField<BlockType>::linearTypeField& blockLower =
                     blockM.lower().asLinear();
 
-                // Reverse pointer loop below is an optimised implementation
+                // Pointer loop below is an optimised implementation
                 // of:
                 //forAll (lower, i)
                 //{
@@ -514,7 +514,7 @@ void insertUpperLower
                 typename CoeffField<BlockType>::squareTypeField& blockLower =
                     blockM.lower().asSquare();
 
-                // Reverse pointer loop below is an optimised implementation
+                // Pointer loop below is an optimised implementation
                 // of:
                 //forAll (lower, i)
                 //{
@@ -582,7 +582,7 @@ void addUpperLower
                 typename CoeffField<BlockType>::linearTypeField& blockUpper =
                     blockM.upper().asLinear();
 
-                // Reverse pointer loop below is an optimised implementation
+                // Pointer loop below is an optimised implementation
                 // of:
                 //forAll (upper, i)
                 //{
@@ -615,7 +615,7 @@ void addUpperLower
                 typename CoeffField<BlockType>::squareTypeField& blockUpper =
                     blockM.upper().asSquare();
 
-                // Reverse pointer loop below is an optimised implementation
+                // Pointer loop below is an optimised implementation
                 // of:
                 //forAll (upper, i)
                 //{
@@ -681,7 +681,7 @@ void addUpperLower
                 typename CoeffField<BlockType>::linearTypeField& blockLower =
                     blockM.lower().asLinear();
 
-                // Reverse pointer loop below is an optimised implementation
+                // Pointer loop below is an optimised implementation
                 // of:
                 //forAll (lower, i)
                 //{
@@ -714,7 +714,7 @@ void addUpperLower
                 typename CoeffField<BlockType>::squareTypeField& blockLower =
                     blockM.lower().asSquare();
 
-                // Reverse pointer loop below is an optimised implementation
+                // Pointer loop below is an optimised implementation
                 // of:
                 //forAll (lower, i)
                 //{
