@@ -231,6 +231,19 @@ Foam::craftsFlow::craftsFlow
     UGlobal_(U),
     phiGlobal_(phi),
     pGlobal_(p),
+    gammaTurbulent_
+    (
+        IOobject
+        (
+            "gammaTurbulent",
+            runTime_.timeName(),
+            mesh_,
+            IOobject::READ_IF_PRESENT,
+            IOobject::AUTO_WRITE
+        ),
+        mesh_,
+        dimensionedScalar("gammaTurbulent", dimensionSet(0, 2, -1, 0, 0), 0)
+    ),
     settingsDict_
     (
         model.admSettingsDict()
@@ -241,7 +254,8 @@ Foam::craftsFlow::craftsFlow
 
     atsEnableWithFlowModel_
     (
-      settingsDict_.subDict("adaptiveTimestepping").lookup("enableWithFlowModel")
+      settingsDict_.subDict("adaptiveTimestepping")
+        .lookup("enableWithFlowModel")
     ),
 
     atsIgnore_

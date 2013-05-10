@@ -84,6 +84,9 @@ protected:
     volVectorField& UGlobal_;
     surfaceScalarField& phiGlobal_;
     volScalarField& pGlobal_;
+    
+    //- Turbulent diffusivity = nut / Sct (turbulent Schmidt number)
+    volScalarField gammaTurbulent_;
 
     //- Flow model settings subDictionary
     const dictionary& settingsDict_;
@@ -307,6 +310,10 @@ public:
             //- Pressure (global)
             inline const volScalarField& p() const;
             inline volScalarField& p();
+            
+            //- Turbulent diffusivity (global time step, stored locally)
+            inline const volScalarField& gammaTurbulent() const;
+            inline volScalarField& gammaTurbulent();
 
 
             // Adaptive timestepping
@@ -376,11 +383,12 @@ public:
             
             //- Store the current flow field into a temporary store area for
             //  later retagging.  Allows the algorithm to take the midpoint
-            //  flow solution for the reactions when using sub-stepping
+            //  flow solution for the reactions when using sub-stepping. Also
+            //  updates the turbulentDiffusion field.
             virtual void storeFlowSolution();
             
             //- Moves the temporary stored flow solution into the globally
-            //  defined flow variables
+            //  defined flow variables. Only used when substepping.
             virtual void retagFlowSolution();
 
             //- Calculate the error scaling factors for each variable

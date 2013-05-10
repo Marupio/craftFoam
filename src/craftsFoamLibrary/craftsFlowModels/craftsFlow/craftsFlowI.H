@@ -85,6 +85,18 @@ inline volScalarField& craftsFlow::p()
 }
 
 
+inline const volScalarField& craftsFlow::gammaTurbulent() const
+{
+    return gammaTurbulent_;
+}
+
+
+inline volScalarField& craftsFlow::gammaTurbulent()
+{
+    return gammaTurbulent_;
+}
+
+
 inline bool craftsFlow::atsEnableWithFlowModel() const
 {
     return atsEnableWithFlowModel_;

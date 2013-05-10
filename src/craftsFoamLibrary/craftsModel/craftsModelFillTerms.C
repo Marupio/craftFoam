@@ -52,9 +52,10 @@ void Foam::craftsModel<matrixSize>::fillTransportTerms
             (
                 phi_, Svar()
             )
+          + fvm::SuSp(-fvc::div(phi_), Svar())
           - fvm::laplacian
             (
-                Svar.gamma(),
+                Svar.gamma() + flow_->gammaTurbulent(),
                 Svar()
             )
         );
@@ -111,7 +112,7 @@ void Foam::craftsModel<matrixSize>::fillTransportTerms
             )
           - fvm::laplacian
             (
-                Svar.gamma(),
+                Svar.gamma() + flow_->gammaTurbulent(),
                 Svar()
             )
          == -dfUdfDelta

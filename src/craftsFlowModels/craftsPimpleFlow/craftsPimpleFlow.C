@@ -279,6 +279,7 @@ Foam::craftsPimpleFlow::craftsPimpleFlow
             UActive_, phiActive_, transport_
         ).ptr()
     ),
+    turbulentSchmidt_(transport_.lookup("turbulentSchmidt")),
 
     UEqnPtr_(0),
     rUAPtr_(0),
@@ -480,6 +481,14 @@ void Foam::craftsPimpleFlow::storeFineSolution()
 {
     fineSaveSpotRPtr_() = turbulence_->R()().internalField();
     this->craftsFlow::storeFineSolution();
+}
+
+
+void Foam::craftsPimpleFlow::storeFlowSolution()
+{
+    gammaTurbulent_ = turbulence_->nut() / turbulentSchmidt_;
+    gammaTurbulent_.correctBoundaryConditions();
+    craftsFlow::storeFlowSolution();
 }
 
 

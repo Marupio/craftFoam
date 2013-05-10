@@ -71,6 +71,9 @@ private:
 
         //- Turbulence model
         autoPtr<incompressible::turbulenceModel> turbulence_;
+
+        //- Turbulent Schmidt number
+        dimensionedScalar turbulentSchmidt_;
         
         //- Algorithm data
         autoPtr<fvVectorMatrix> UEqnPtr_;
@@ -90,6 +93,7 @@ private:
         scalar sumLocalContErr;
         scalar globalContErr;
         scalar cumulativeContErr;
+
 
     // Source term data
 
@@ -190,6 +194,12 @@ public:
             //- Store the current state as the fine solution.  Only valid
             //  when sub-stepping; otherwise this will already be in memory.
             virtual void storeFineSolution();
+
+            //- Store the current flow field into a temporary store area for
+            //  later retagging.  Allows the algorithm to take the midpoint
+            //  flow solution for the reactions when using sub-stepping. Also
+            //  updates the turbulentDiffusion field.
+            virtual void storeFlowSolution();
 
             //- Calculate the error scaling factors for each variable
             virtual void calculateScales();

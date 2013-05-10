@@ -235,6 +235,7 @@ Foam::craftsPisoFlow::craftsPisoFlow
             UActive_, phiActive_, transport_
         ).ptr()
     ),
+    turbulentSchmidt_(transport_.lookup("turbulentSchmidt")),
 
     UEqnPtr_(0),
 
@@ -419,6 +420,14 @@ void Foam::craftsPisoFlow::storeFineSolution()
 {
     fineSaveSpotRPtr_() = turbulence_->R()().internalField();
     this->craftsFlow::storeFineSolution();
+}
+
+
+void Foam::craftsPisoFlow::storeFlowSolution()
+{
+    gammaTurbulent_ = turbulence_->nut() / turbulentSchmidt_;
+    gammaTurbulent_.correctBoundaryConditions();
+    craftsFlow::storeFlowSolution();
 }
 
 
