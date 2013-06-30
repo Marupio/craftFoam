@@ -75,9 +75,10 @@ Foam::label Foam::craftsModel<matrixSize>::implicitAutoSolve
             (
                 phi_, impVar()
             )
+          + fvm::SuSp(-fvc::div(phi_), impVar())
           - fvm::laplacian
             (
-                impVar.gamma(),
+                impVar.gamma() + flow_->gammaTurbulent(),
                 impVar()
             )
         );
@@ -241,9 +242,10 @@ Foam::label Foam::craftsModel<matrixSize>::implicitAutoSolveField
             (
                 phi_, impVar()
             )
+          + fvm::SuSp(-fvc::div(phi_), impVar())
           - fvm::laplacian
             (
-                impVar.gamma(),
+                impVar.gamma() + flow_->gammaTurbulent(),
                 impVar()
             )
         );
